@@ -115,6 +115,10 @@
   .toggle{width:100%; margin-top:9px; padding:10px 0; border-radius:7px; border:1px dashed var(--line);
           background:transparent; color:var(--steel); font-size:12.5px; cursor:pointer}
   .toggle.on{border-style:solid; border-color:var(--brass); color:var(--brass)}
+  .chip.side{color:var(--brass); border-color:var(--brass)}
+  .del{background:transparent; border:none; color:var(--line); font-size:17px; line-height:1;
+       padding:0 2px 0 8px; cursor:pointer}
+  .del:hover{color:var(--brass)}
   .why-halten{color:var(--brass)}
   .setcount{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:4px}
   .setcount button{background:transparent; border:1px solid var(--line); color:var(--steel);
@@ -154,14 +158,17 @@ var EX = [
   {id:"bank",     n:"Bodendrücken",             w:"A",  sets:3, lo:8,  hi:12, url:V+"229-bankdruecken-mit-griffstange/",          setup:"Griffstange, Rücken am Boden, Ellbogen setzen unten auf"},
   {id:"knie",     n:"Kniebeugen",               w:"A",  sets:3, lo:8,  hi:12, url:V+"203-kniebeugen/",                            setup:"Griffstange auf den Schultern", pm:1},
   {id:"face",     n:"Facepulls",                w:"A+", sets:2, lo:12, hi:18, url:V+"facepulls-am-seilzug/",                      setup:"Seilzug in Kopfhöhe"},
-  {id:"rot",      n:"Rumpfrotation",            w:"A+", sets:2, lo:10, hi:15, url:V+"rumpfrotation-am-seilzug/",                  setup:"Seilzug in Brusthöhe"},
+  {id:"rot",      n:"Rumpfrotation", side:"links",  w:"A+", sets:2, lo:10, hi:15, url:V+"rumpfrotation-am-seilzug/",              setup:"Seilzug in Brusthöhe, Zug von rechts"},
+  {id:"rotR",     n:"Rumpfrotation", side:"rechts", w:"A+", sets:2, lo:10, hi:15, url:V+"rumpfrotation-am-seilzug/",              setup:"Seilzug in Brusthöhe, Zug von links"},
 
   // B – Zug horizontal, Druck über Kopf, Hüfte
-  {id:"rudern",   n:"Rudern einarmig",          w:"B",  sets:3, lo:8,  hi:12, url:V+"rudern-einarmig/",                           setup:"Griff, mittlere Höhe"},
-  {id:"schulter", n:"Schulterdrücken",          w:"B",  sets:3, lo:8,  hi:12, url:V+"200-schulterdruecken-vor-dem-kopf/",         setup:"Griffstange, Schulterhöhe"},
-  {id:"rdl",      n:"Rumänisches Kreuzheben",   w:"B",  sets:3, lo:8,  hi:12, url:V+"205-rumaenisches-kreuzheben/",               setup:"Griffstange, Horn tief", pm:1},
-  {id:"rev",      n:"Reverse Flys",             w:"B+", sets:2, lo:12, hi:18, url:V+"224-reverse-flys-vorgebeugt-mit-seilzug/",   setup:"Seilzug tief, vorgebeugt"},
-  {id:"lunge",    n:"Ausfallschritte",          w:"B+", sets:2, lo:10, hi:12, url:V+"ausfallschritte/",                           setup:"Griffband, Horn tief", pm:1},
+  {id:"rudern",   n:"Rudern einarmig", side:"links",  w:"B",  sets:3, lo:8,  hi:12, url:V+"rudern-einarmig/",                     setup:"Griff, mittlere Höhe"},
+  {id:"rudernR",  n:"Rudern einarmig", side:"rechts", w:"B",  sets:3, lo:8,  hi:12, url:V+"rudern-einarmig/",                     setup:"Griff, mittlere Höhe"},
+  {id:"schulter", n:"Schulterdrücken",         w:"B",  sets:3, lo:8,  hi:12, url:V+"200-schulterdruecken-vor-dem-kopf/",         setup:"Griffstange, Schulterhöhe"},
+  {id:"rdl",      n:"Rumänisches Kreuzheben",  w:"B",  sets:3, lo:8,  hi:12, url:V+"205-rumaenisches-kreuzheben/",               setup:"Griffstange, Horn tief", pm:1},
+  {id:"rev",      n:"Reverse Flys",            w:"B+", sets:2, lo:12, hi:18, url:V+"224-reverse-flys-vorgebeugt-mit-seilzug/",   setup:"Seilzug tief, vorgebeugt"},
+  {id:"lunge",    n:"Ausfallschritte", side:"links",  w:"B+", sets:2, lo:10, hi:12, url:V+"ausfallschritte/",                     setup:"Griffband, Horn tief, linkes Bein vorne", pm:1},
+  {id:"lungeR",   n:"Ausfallschritte", side:"rechts", w:"B+", sets:2, lo:10, hi:12, url:V+"ausfallschritte/",                     setup:"Griffband, Horn tief, rechtes Bein vorne", pm:1},
 
   // C – andere Winkel, mehr Rumpf
   {id:"rudern2",  n:"Rudern vorgebeugt",        w:"C",  sets:3, lo:8,  hi:12, url:V+"201-vorgebeugtes-rudern-mit-griffstange/",   setup:"Griffstange, Horn tief, Oberkörper vorgebeugt"},
@@ -176,6 +183,7 @@ function ex(id){ for(var i=0;i<EX.length;i++) if(EX[i].id===id) return EX[i]; re
 /* ---------- Speicher ---------- */
 var KEY = "eisenhorn.v1";
 var WKEY = "eisenhorn.weight.v1";
+var XKEY = "eisenhorn.lastexport.v1";
 var logs = [];
 var weights = [];
 function load(){
@@ -290,6 +298,19 @@ function suggest(id){
     why:"Gleicher Widerstand, eine Wiederholung mehr als beim schwächsten Satz."};
 }
 
+function backupAlt(){
+  try{
+    var v = localStorage.getItem(XKEY);
+    if(!v) return -1;
+    return Math.floor((Date.now() - new Date(v).getTime())/86400000);
+  }catch(e){ return -1; }
+}
+function backupText(){
+  var n = backupAlt();
+  if(n < 0) return "noch nie";
+  return n === 0 ? "heute" : n === 1 ? "gestern" : "vor "+n+" Tagen";
+}
+
 /* ---------- Körpergewicht ---------- */
 function avgLast(n, skip){
   var s = weights.slice(); // chronologisch
@@ -366,6 +387,7 @@ function cardHTML(e){
   var hist = allOf(e.id).slice(-8).map(function(l){ return l.w; });
   var h = '<div class="card'+(saved[e.id]?" saved":"")+(fertig&&!open?" done":"")+'" data-card="'+e.id+'">'+
     '<div class="ctop"><div><div class="name">'+esc(e.n)+
+    (e.side?' <span class="chip side">'+e.side+'</span>':'')+
     (fertig?' <span class="check">✓</span>':'')+
     (e.pm?' <span class="chip">abends</span>':'')+'</div>'+
     '<div class="setup">'+esc(e.setup)+'</div></div>'+
@@ -422,20 +444,28 @@ function viewHeute(){
   });
   h += '</div>';
 
+  var core = EX.filter(function(e){ return e.w===plan; });
+
   var rw = rampWeek();
   if(rw <= 4){
-    var n = rw <= 2 ? 1 : 2;
+    var erste = core.length ? core[0].n : "der ersten Übung";
     h += '<div class="ramp"><b>Aufbauphase · Woche '+rw+' von 4</b><span>'+
       (rw <= 2
         ? 'Heute ein Satz pro Übung. Ziel ist nur, deine Einstellungen zu finden und einzutragen – kein Leistungsanspruch. Das hält auch den Muskelkater klein.'
         : 'Heute zwei Sätze pro Übung. Ab jetzt greift die Progression, die Zahlen fangen an zu steigen.')+
-      '</span><span class="deal">Dein Vertrag: ein Satz Latzug. Alles danach ist freiwillig.</span></div>';
+      '</span><span class="deal">Dein Vertrag: ein Satz '+esc(erste)+'. Alles danach ist freiwillig.</span></div>';
   }
 
-  var core = EX.filter(function(e){ return e.w===plan; });
   var fertig = core.filter(function(e){ return doneToday(e.id); }).length;
   h += '<div class="progress"><span>'+fertig+' von '+core.length+' heute erledigt</span>'+
        '<span class="bar"><i style="width:'+Math.round(fertig/core.length*100)+'%"></i></span></div>';
+
+  var lw = weights.length ? new Date(weights[weights.length-1].date) : null;
+  var lwTage = lw ? Math.floor((Date.now()-lw.getTime())/86400000) : -1;
+  if(lwTage < 0 || lwTage >= 7)
+    h += '<button class="dash" style="margin-bottom:13px" data-tab="verlauf">'+
+         (lwTage < 0 ? 'Körpergewicht noch nie eingetragen' : 'Gewicht zuletzt vor '+lwTage+' Tagen – diese Woche fehlt')+
+         '</button>';
 
   core.forEach(function(e){ h += cardHTML(e); });
   h += '<button class="dash" data-extra="1">'+(showExtra?"Zusatz ausblenden":"Zusatz, wenn Zeit ist")+'</button>';
@@ -488,16 +518,22 @@ function viewVerlauf(){
   var h = '<div style="height:18px"></div>' + weightCard();
   if(!ids.length) return h+'<div class="empty">Noch keine Übung eingetragen.<br>Nach der ersten Einheit steht hier deine Steigerung.</div>';
   ids.forEach(function(id){
-    var all = allOf(id), rows = all.slice(-12).reverse(), diff = rows[0].w - all[0].w;
+    var e = ex(id);
+    if(!e) return;
+    var all = [];
+    logs.forEach(function(l,i){ if(l.ex===id) all.push({l:l, i:i}); });
+    var rows = all.slice(-12).reverse(), diff = rows[0].l.w - all[0].l.w;
     h += '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center">'+
-      '<div class="name">'+esc(ex(id).n)+'</div>'+
+      '<div class="name">'+esc(e.n)+(e.side?' <span class="chip side">'+e.side+'</span>':'')+'</div>'+
       '<div style="font-family:var(--mono);font-size:12px;color:'+(diff>0?"var(--ok)":"var(--steel)")+'">'+
-      (diff>0?"+"+diff:diff===0?"±0":diff)+' seit Start</div></div><div style="margin-top:11px">';
-    rows.forEach(function(r,i){
-      h += '<div class="hrow'+(i===0?" now":"")+'"><span style="width:48px">'+fmt(r.date)+'</span>'+
-           '<span style="width:52px">'+r.h+' cm</span>'+
-           '<span style="width:34px;color:'+(i===0?"var(--brass)":"var(--steel)")+'">W'+r.w+((r.bar||1)===2?'\u00b7st':'')+'</span>'+
-           '<span>'+r.reps.join(" / ")+'</span></div>';
+      (diff>0?"+"+diff:diff===0?"\u00b10":diff)+' seit Start</div></div><div style="margin-top:11px">';
+    rows.forEach(function(row,i){
+      var r = row.l;
+      h += '<div class="hrow'+(i===0?" now":"")+'"><span style="width:46px">'+fmt(r.date)+'</span>'+
+           '<span style="width:50px">'+r.h+' cm</span>'+
+           '<span style="width:50px;color:'+(i===0?"var(--brass)":"var(--steel)")+'">W'+r.w+((r.bar||1)===2?'\u00b7st':'')+'</span>'+
+           '<span style="flex:1">'+r.reps.join(" / ")+'</span>'+
+           '<button class="del" data-del="'+row.i+'">\u00d7</button></div>';
     });
     h += '</div></div>';
   });
@@ -508,7 +544,7 @@ function viewMehr(){
   return '<div style="height:18px"></div>'+
 
   '<div class="card"><div class="name">Anfangen</div><ul class="rules">'+
-    '<li><b>Die Einstiegsregel:</b> ein Satz Latzug. Das ist die ganze Verpflichtung. Neunzig Sekunden, das Horn steht schon eingestellt. Alles danach ist freiwillig.</li>'+
+    '<li><b>Die Einstiegsregel:</b> ein Satz der ersten Übung – Latzug bei A, Rudern bei B, Rudern vorgebeugt bei C. Das ist die ganze Verpflichtung. Neunzig Sekunden, das Horn steht schon eingestellt. Alles danach ist freiwillig.</li>'+
     '<li>Woche 1 und 2: ein Satz pro Übung. Es geht nur darum, die Einstellungen zu finden.</li>'+
     '<li>Woche 3 und 4: zwei Sätze. Jetzt steigen die Zahlen.</li>'+
     '<li>Ab Woche 5: drei Sätze, Zusatzübungen nach Lust. Die App stellt das von allein um.</li>'+
@@ -554,6 +590,7 @@ function viewMehr(){
   '</ul></div>'+
 
   '<div class="card"><div class="name">Sicherung</div>'+
+    '<p class="note" style="margin-top:8px;color:'+(backupAlt()>30||backupAlt()<0?'var(--brass)':'var(--steel)')+'">Letzte Sicherung: '+backupText()+'</p>'+
     '<p class="note">'+logs.length+' Trainingseinträge und '+weights.length+' Gewichtswerte liegen lokal auf diesem Gerät und gehen nie an einen Server. '+
     'Genau deshalb solltest du sie ab und zu exportieren.</p>'+
     '<button class="btn brass" data-export="1">Exportieren</button>'+
@@ -576,7 +613,7 @@ function render(){
 
 /* ---------- Interaktion ---------- */
 document.addEventListener("click", function(evt){
-  var t = evt.target.closest ? evt.target.closest("[data-tab],[data-plan],[data-open],[data-cancel],[data-save],[data-step],[data-sets],[data-bar],[data-easy],[data-extra],[data-export],[data-import],[data-reset],[data-wopen],[data-wcancel],[data-wsave]") : null;
+  var t = evt.target.closest ? evt.target.closest("[data-tab],[data-plan],[data-open],[data-cancel],[data-save],[data-step],[data-sets],[data-del],[data-bar],[data-easy],[data-extra],[data-export],[data-import],[data-reset],[data-wopen],[data-wcancel],[data-wsave]") : null;
   if(!t) return;
   var ds = t.dataset;
 
@@ -607,6 +644,15 @@ document.addEventListener("click", function(evt){
   if(ds.cancel){ openId = null; return render(); }
   if(ds.bar){ draft.bar = parseInt(ds.bar,10); return render(); }
   if(ds.easy){ draft.easy = !draft.easy; return render(); }
+
+  if(ds.del){
+    var idx = parseInt(ds.del,10);
+    var r = logs[idx];
+    if(r && confirm("Eintrag vom "+fmt(r.date)+" löschen?")){
+      logs.splice(idx,1); persist(); render();
+    }
+    return;
+  }
 
   if(ds.sets){
     var n = parseInt(ds.sets,10);
@@ -641,6 +687,8 @@ document.addEventListener("click", function(evt){
     a.href = URL.createObjectURL(blob);
     a.download = "eisenhorn-" + new Date().toISOString().slice(0,10) + ".json";
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    try{ localStorage.setItem(XKEY, new Date().toISOString()); }catch(err){}
+    render();
     return;
   }
   if(ds.import){ document.getElementById("file").click(); return; }
