@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Eisenhorn</title>
+<meta name="theme-color" content="#15191D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Eisenhorn">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="manifest" href="manifest.json">
+<style>
+  :root{
+    --ground:#15191D; --panel:#1F272D; --raise:#2A343C; --line:#3B4750;
+    --bone:#EFECE5; --steel:#8494A0; --brass:#CBA33C; --ok:#5FA98C;
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  body{
+    margin:0; background:var(--ground); color:var(--bone);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+    -webkit-user-select:none; user-select:none;
+  }
+  .wrap{max-width:520px; margin:0 auto; padding:22px 15px 70px}
+  .head{display:flex; justify-content:space-between; align-items:flex-end; padding-bottom:15px; border-bottom:1px solid var(--line)}
+  .kicker{font-family:var(--mono); font-size:9.5px; letter-spacing:.24em; color:var(--brass); text-transform:uppercase}
+  h1{font-size:25px; font-weight:700; letter-spacing:-.03em; margin:1px 0 0}
+  .tabs{display:flex; gap:3px}
+  .tab{padding:6px 11px; border-radius:5px; border:none; background:transparent; color:var(--steel);
+       font-family:var(--mono); font-size:11.5px; cursor:pointer}
+  .tab.on{background:var(--bone); color:var(--ground)}
+  .plans{display:flex; gap:8px; margin:17px 0 15px}
+  .plan{flex:1; padding:10px 0 9px; border-radius:8px; cursor:pointer; background:transparent;
+        border:1px solid var(--line); color:var(--steel); font-family:var(--mono); font-size:13px}
+  .plan.on{border-color:var(--brass); background:var(--raise); color:var(--brass)}
+  .plan small{display:block; font-size:10.5px; margin-top:3px; opacity:.8}
+  .plan .due{color:var(--brass); opacity:1}
+  .dot{width:6px;height:6px;border-radius:3px;background:var(--brass);display:inline-block;margin-left:6px;vertical-align:middle}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:15px; margin-bottom:11px}
+  .card.saved{border-color:var(--ok)}
+  .ctop{display:flex; justify-content:space-between; align-items:flex-start; gap:10px}
+  .name{font-size:16.5px; font-weight:660; letter-spacing:-.015em}
+  .setup{font-size:12px; color:var(--steel); margin-top:2px}
+  .vid{font-family:var(--mono); font-size:11px; color:var(--brass); text-decoration:none;
+       border:1px solid var(--line); border-radius:5px; padding:4px 8px; white-space:nowrap}
+  .readout{display:flex; gap:10px; margin-top:13px; background:var(--ground); border-radius:9px; padding:11px 13px}
+  .ro{flex:1}
+  .ro .lbl{font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; color:var(--steel); text-transform:uppercase}
+  .ro .val{font-family:var(--mono); font-size:25px; line-height:1.25}
+  .ro .val .u{font-size:11px; color:var(--steel); margin-left:3px}
+  .ro .val .x{font-size:14px; color:var(--steel)}
+  .sep{width:1px; background:var(--line)}
+  .why{font-size:12px; color:var(--steel); margin-top:9px; line-height:1.45}
+  .lastrow{display:flex; align-items:center; justify-content:space-between; gap:10px;
+           margin-top:10px; padding-top:10px; border-top:1px solid var(--line);
+           font-family:var(--mono); font-size:11.5px; color:var(--steel)}
+  button{font-family:inherit}
+  .btn{width:100%; padding:12px 0; border-radius:8px; border:none; cursor:pointer; font-size:14.5px;
+       background:var(--raise); color:var(--bone); margin-top:12px}
+  .btn.ok{background:var(--ok); color:var(--ground)}
+  .btn.brass{background:var(--brass); color:var(--ground); font-weight:680}
+  .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--steel)}
+  .form{margin-top:13px; padding-top:13px; border-top:1px dashed var(--line)}
+  .row{display:flex; gap:9px}
+  .stp .lbl{font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; color:var(--steel);
+            text-transform:uppercase; margin-bottom:5px}
+  .stp{flex:1}
+  .stepper{display:flex; border:1px solid var(--line); border-radius:7px; overflow:hidden}
+  .stepper button{width:46px; background:var(--raise); color:var(--bone); border:none; font-size:19px;
+                  font-family:var(--mono); cursor:pointer; line-height:1}
+  .stepper .v{flex:1; text-align:center; padding:8px 0; font-family:var(--mono); font-size:20px}
+  .stepper .v .u{font-size:10px; color:var(--steel); margin-left:2px}
+  .setline{display:flex; align-items:center; gap:10px; margin-bottom:7px}
+  .setline .n{font-family:var(--mono); font-size:12px; color:var(--steel); width:46px}
+  .hint{font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; color:var(--steel);
+        text-transform:uppercase; margin:14px 0 6px}
+  .dash{width:100%; padding:11px 0; background:transparent; border:1px dashed var(--line);
+        border-radius:8px; color:var(--steel); font-family:var(--mono); font-size:11.5px; cursor:pointer}
+  .hrow{display:flex; gap:12px; font-family:var(--mono); font-size:12.5px; padding:6px 0; color:var(--steel)}
+  .hrow.now{color:var(--bone)}
+  .hrow+.hrow{border-top:1px solid var(--line)}
+  .empty{margin-top:44px; text-align:center; color:var(--steel); font-size:14px; line-height:1.6}
+  .note{font-size:12.5px; color:var(--steel); line-height:1.55; margin:14px 0 0}
+  .files{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <div class="kicker">Eisenhorn</div>
+      <h1 id="title">Heute</h1>
+    </div>
+    <div class="tabs">
+      <button class="tab on" data-tab="heute">Heute</button>
+      <button class="tab" data-tab="verlauf">Verlauf</button>
+      <button class="tab" data-tab="daten">Daten</button>
+    </div>
+  </div>
+  <div id="body"></div>
+</div>
+<input type="file" id="file" class="files" accept="application/json">
+
+<script>
+"use strict";
+
+/* ---------- Übungen ---------- */
+var V = "https://eisenhorn.com/de-ch/training/kraftuebungen/";
+var EX = [
+  {id:"knie",     n:"Kniebeugen",               w:"A",  sets:3, lo:8,  hi:12, url:V+"203-kniebeugen/",                            setup:"Griffstange auf den Schultern"},
+  {id:"lat",      n:"Latzug zur Brust",         w:"A",  sets:3, lo:8,  hi:12, url:V+"latzug-zur-brust/",                          setup:"Griffstange, Horn hoch"},
+  {id:"bank",     n:"Bankdrücken",              w:"A",  sets:3, lo:8,  hi:12, url:V+"bankdruecken-brustdruecken/",                setup:"Bank, Griffstange"},
+  {id:"face",     n:"Facepulls",                w:"A+", sets:2, lo:12, hi:18, url:V+"facepulls-am-seilzug/",                      setup:"Seilzug in Kopfhöhe"},
+  {id:"rot",      n:"Rumpfrotation",            w:"A+", sets:2, lo:10, hi:15, url:V+"rumpfrotation-am-seilzug/",                  setup:"Seilzug in Brusthöhe"},
+  {id:"rdl",      n:"Rumänisches Kreuzheben",   w:"B",  sets:3, lo:8,  hi:12, url:V+"205-rumaenisches-kreuzheben/",               setup:"Griffstange, Horn tief"},
+  {id:"rudern",   n:"Rudern einarmig",          w:"B",  sets:3, lo:8,  hi:12, url:V+"rudern-einarmig/",                           setup:"Griff, mittlere Höhe"},
+  {id:"schulter", n:"Schulterdrücken",          w:"B",  sets:3, lo:8,  hi:12, url:V+"200-schulterdruecken-vor-dem-kopf/",         setup:"Griffstange, Schulterhöhe"},
+  {id:"rev",      n:"Reverse Flys",             w:"B+", sets:2, lo:12, hi:18, url:V+"224-reverse-flys-vorgebeugt-mit-seilzug/",   setup:"Seilzug tief, vorgebeugt"},
+  {id:"lunge",    n:"Ausfallschritte",          w:"B+", sets:2, lo:10, hi:12, url:V+"ausfallschritte/",                           setup:"Griffband, Horn tief"}
+];
+function ex(id){ for(var i=0;i<EX.length;i++) if(EX[i].id===id) return EX[i]; return null; }
+
+/* ---------- Speicher ---------- */
+var KEY = "eisenhorn.v1";
+var logs = [];
+function load(){
+  try{
+    var raw = localStorage.getItem(KEY);
+    logs = raw ? JSON.parse(raw) : [];
+    if(!Array.isArray(logs)) logs = [];
+  }catch(e){ logs = []; }
+}
+function persist(){
+  try{ localStorage.setItem(KEY, JSON.stringify(logs)); return true; }
+  catch(e){ alert("Konnte nicht speichern. Ist der Speicher voll?"); return false; }
+}
+
+/* ---------- Logik ---------- */
+function lastOf(id){
+  var r = null;
+  for(var i=0;i<logs.length;i++) if(logs[i].ex===id) r = logs[i];
+  return r;
+}
+function allOf(id){ return logs.filter(function(l){ return l.ex===id; }); }
+
+function suggest(id){
+  var e = ex(id), last = lastOf(id);
+  if(!last) return {w:null,h:null,reps:e.lo,sets:e.sets,
+    why:"Erstes Mal. Widerstand so wählen, dass "+e.lo+" Wiederholungen fordernd sind."};
+  var top = last.reps.every(function(r){ return r >= e.hi; });
+  if(top) return {w:last.w+1,h:last.h,reps:e.lo,sets:e.sets,
+    why:"Letztes Mal alle Sätze auf "+e.hi+". Widerstand eine Stufe hoch."};
+  var min = Math.min.apply(null,last.reps);
+  return {w:last.w,h:last.h,reps:Math.min(min+1,e.hi),sets:e.sets,
+    why:"Gleicher Widerstand, eine Wiederholung mehr als beim schwächsten Satz."};
+}
+
+function lastDate(prefix){
+  var d = null;
+  for(var i=0;i<logs.length;i++){
+    var e = ex(logs[i].ex);
+    if(e && e.w.charAt(0)===prefix){ var t = new Date(logs[i].date); if(!d||t>d) d = t; }
+  }
+  return d;
+}
+function ago(d){
+  if(!d) return "noch nie";
+  var n = Math.floor((Date.now()-d.getTime())/86400000);
+  return n===0 ? "heute schon" : n===1 ? "gestern" : "vor "+n+" Tagen";
+}
+function fmt(iso){
+  var d = new Date(iso);
+  return ("0"+d.getDate()).slice(-2)+"."+("0"+(d.getMonth()+1)).slice(-2)+".";
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+/* ---------- Zustand ---------- */
+var tab = "heute", plan = "A", showExtra = false, openId = null, saved = {};
+var draft = {};
+
+function due(){
+  var a = lastDate("A"), b = lastDate("B");
+  if(!a) return "A";
+  if(!b) return "B";
+  return a.getTime() > b.getTime() ? "B" : "A";
+}
+
+/* ---------- Rendern ---------- */
+function spark(vals){
+  if(vals.length < 2) return "";
+  var W=100,H=26,max=Math.max.apply(null,vals),min=Math.min.apply(null,vals),span=(max-min)||1,p=[];
+  for(var i=0;i<vals.length;i++)
+    p.push(((i/(vals.length-1))*W).toFixed(1)+","+(H-((vals[i]-min)/span)*(H-4)-2).toFixed(1));
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="88" height="26" preserveAspectRatio="none">'+
+         '<polyline points="'+p.join(" ")+'" fill="none" stroke="#CBA33C" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>';
+}
+
+function stepper(kind, i, val, unit){
+  return '<div class="stepper">'+
+    '<button data-step="'+kind+'" data-i="'+i+'" data-d="-1">−</button>'+
+    '<div class="v">'+val+(unit?'<span class="u">'+unit+'</span>':'')+'</div>'+
+    '<button data-step="'+kind+'" data-i="'+i+'" data-d="1">+</button></div>';
+}
+
+function cardHTML(e){
+  var s = suggest(e.id), last = lastOf(e.id), open = openId===e.id;
+  var hist = allOf(e.id).slice(-8).map(function(l){ return l.w; });
+  var h = '<div class="card'+(saved[e.id]?" saved":"")+'" data-card="'+e.id+'">'+
+    '<div class="ctop"><div><div class="name">'+esc(e.n)+'</div>'+
+    '<div class="setup">'+esc(e.setup)+'</div></div>'+
+    '<a class="vid" href="'+e.url+'" target="_blank" rel="noreferrer">Video</a></div>'+
+    '<div class="readout">'+
+      '<div class="ro"><div class="lbl">Horn</div><div class="val">'+
+        (s.h==null?'<span style="color:var(--steel)">—</span>':s.h)+'<span class="u">cm</span></div></div>'+
+      '<div class="sep"></div>'+
+      '<div class="ro"><div class="lbl">Widerstand</div><div class="val" style="color:'+(s.w==null?'var(--steel)':'var(--brass)')+'">'+
+        (s.w==null?'—':s.w)+'</div></div>'+
+      '<div class="sep"></div>'+
+      '<div class="ro"><div class="lbl">Heute</div><div class="val">'+s.sets+'<span class="x">×</span>'+s.reps+'</div></div>'+
+    '</div>'+
+    '<div class="why">'+esc(s.why)+'</div>';
+
+  if(last) h += '<div class="lastrow"><span>zuletzt '+fmt(last.date)+' · W'+last.w+' · '+last.reps.join("/")+'</span>'+spark(hist)+'</div>';
+
+  if(!open){
+    h += '<button class="btn'+(saved[e.id]?" ok":"")+'" data-open="'+e.id+'">'+
+         (saved[e.id]?"Gespeichert":(last?"Eintragen":"Erste Einstellung eintragen"))+'</button>';
+  }else{
+    var d = draft;
+    h += '<div class="form"><div class="row">'+
+      '<div class="stp"><div class="lbl">Hornhöhe</div>'+stepper("h",0,d.h,"cm")+'</div>'+
+      '<div class="stp"><div class="lbl">Widerstand</div>'+stepper("w",0,d.w,"")+'</div>'+
+      '</div><div class="hint">Geschaffte Wiederholungen</div>';
+    for(var i=0;i<d.reps.length;i++)
+      h += '<div class="setline"><div class="n">Satz '+(i+1)+'</div><div style="flex:1">'+stepper("r",i,d.reps[i],"")+'</div></div>';
+    h += '<div class="row" style="margin-top:12px">'+
+      '<button class="btn ghost" style="flex:1;margin:0" data-cancel="1">Abbrechen</button>'+
+      '<button class="btn brass" style="flex:2;margin:0" data-save="'+e.id+'">Speichern</button></div></div>';
+  }
+  return h+'</div>';
+}
+
+function viewHeute(){
+  var d = due(), dA = lastDate("A"), dB = lastDate("B"), h = '<div class="plans">';
+  ["A","B"].forEach(function(p){
+    h += '<button class="plan'+(plan===p?" on":"")+'" data-plan="'+p+'">Workout '+p+
+         (d===p?'<span class="dot"></span>':'')+
+         '<small class="'+(d===p?"due":"")+'">'+(d===p?"dran":ago(p==="A"?dA:dB))+'</small></button>';
+  });
+  h += '</div>';
+  EX.filter(function(e){ return e.w===plan; }).forEach(function(e){ h += cardHTML(e); });
+  h += '<button class="dash" data-extra="1">'+(showExtra?"Zusatz ausblenden":"Zusatz, wenn Zeit ist")+'</button>';
+  if(showExtra){
+    h += '<div style="height:11px"></div>';
+    EX.filter(function(e){ return e.w===plan+"+"; }).forEach(function(e){ h += cardHTML(e); });
+  }
+  return h;
+}
+
+function viewVerlauf(){
+  var ids = [];
+  logs.forEach(function(l){ if(ids.indexOf(l.ex)<0) ids.push(l.ex); });
+  if(!ids.length) return '<div class="empty">Noch nichts eingetragen.<br>Nach der ersten Einheit steht hier deine Steigerung.</div>';
+  var h = '<div style="height:18px"></div>';
+  ids.forEach(function(id){
+    var all = allOf(id), rows = all.slice(-12).reverse(), diff = rows[0].w - all[0].w;
+    h += '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center">'+
+      '<div class="name">'+esc(ex(id).n)+'</div>'+
+      '<div style="font-family:var(--mono);font-size:12px;color:'+(diff>0?"var(--ok)":"var(--steel)")+'">'+
+      (diff>0?"+"+diff:diff===0?"±0":diff)+' seit Start</div></div><div style="margin-top:11px">';
+    rows.forEach(function(r,i){
+      h += '<div class="hrow'+(i===0?" now":"")+'"><span style="width:48px">'+fmt(r.date)+'</span>'+
+           '<span style="width:52px">'+r.h+' cm</span>'+
+           '<span style="width:34px;color:'+(i===0?"var(--brass)":"var(--steel)")+'">W'+r.w+'</span>'+
+           '<span>'+r.reps.join(" / ")+'</span></div>';
+    });
+    h += '</div></div>';
+  });
+  return h;
+}
+
+function viewDaten(){
+  return '<div style="height:18px"></div><div class="card">'+
+    '<div class="name">Sicherung</div>'+
+    '<p class="note">'+logs.length+' Einträge liegen lokal auf diesem Gerät. Sie gehen niemals an einen Server. '+
+    'Genau deshalb solltest du sie ab und zu exportieren – die Datei landet in deinen Dateien oder iCloud.</p>'+
+    '<button class="btn brass" data-export="1">Exportieren</button>'+
+    '<button class="btn ghost" data-import="1">Sicherung einlesen</button></div>'+
+    '<div class="card"><div class="name">Zurücksetzen</div>'+
+    '<p class="note">Löscht alle Einträge auf diesem Gerät. Vorher exportieren.</p>'+
+    '<button class="btn ghost" data-reset="1">Alles löschen</button></div>';
+}
+
+function render(){
+  document.getElementById("title").textContent =
+    tab==="heute" ? "Heute" : tab==="verlauf" ? "Steigerung" : "Daten";
+  Array.prototype.forEach.call(document.querySelectorAll(".tab"), function(b){
+    b.classList.toggle("on", b.dataset.tab===tab);
+  });
+  document.getElementById("body").innerHTML =
+    tab==="heute" ? viewHeute() : tab==="verlauf" ? viewVerlauf() : viewDaten();
+}
+
+/* ---------- Interaktion ---------- */
+document.addEventListener("click", function(evt){
+  var t = evt.target.closest ? evt.target.closest("[data-tab],[data-plan],[data-open],[data-cancel],[data-save],[data-step],[data-extra],[data-export],[data-import],[data-reset]") : null;
+  if(!t) return;
+  var ds = t.dataset;
+
+  if(ds.tab){ tab = ds.tab; openId = null; return render(); }
+  if(ds.plan){ plan = ds.plan; openId = null; return render(); }
+  if(ds.extra){ showExtra = !showExtra; return render(); }
+
+  if(ds.open){
+    var s = suggest(ds.open);
+    draft = { h: s.h==null?100:s.h, w: s.w==null?10:s.w, reps: [] };
+    for(var i=0;i<s.sets;i++) draft.reps.push(s.reps);
+    openId = ds.open;
+    render();
+    var el = document.querySelector('[data-card="'+ds.open+'"]');
+    if(el) el.scrollIntoView({block:"center", behavior:"smooth"});
+    return;
+  }
+  if(ds.cancel){ openId = null; return render(); }
+
+  if(ds.step){
+    var d = parseInt(ds.d,10);
+    if(ds.step==="h") draft.h = Math.max(0, draft.h + d*5);
+    else if(ds.step==="w") draft.w = Math.max(0, draft.w + d);
+    else { var i2 = parseInt(ds.i,10); draft.reps[i2] = Math.max(0, draft.reps[i2] + d); }
+    return render();
+  }
+
+  if(ds.save){
+    logs.push({ ex: ds.save, date: new Date().toISOString(), h: draft.h, w: draft.w, reps: draft.reps.slice() });
+    persist();
+    openId = null;
+    saved[ds.save] = true;
+    render();
+    setTimeout(function(){ delete saved[ds.save]; if(tab==="heute") render(); }, 2000);
+    return;
+  }
+
+  if(ds.export){
+    var blob = new Blob([JSON.stringify(logs,null,1)], {type:"application/json"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "eisenhorn-" + new Date().toISOString().slice(0,10) + ".json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    return;
+  }
+  if(ds.import){ document.getElementById("file").click(); return; }
+  if(ds.reset){
+    if(confirm("Wirklich alle Einträge löschen?")){ logs = []; persist(); render(); }
+    return;
+  }
+});
+
+document.getElementById("file").addEventListener("change", function(e){
+  var f = e.target.files[0]; if(!f) return;
+  var r = new FileReader();
+  r.onload = function(){
+    try{
+      var d = JSON.parse(r.result);
+      if(!Array.isArray(d)) throw new Error("Format");
+      logs = d; persist(); render();
+      alert(d.length + " Einträge eingelesen.");
+    }catch(err){ alert("Datei konnte nicht gelesen werden."); }
+  };
+  r.readAsText(f);
+  e.target.value = "";
+});
+
+/* ---------- Start ---------- */
+load();
+plan = due();
+render();
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js").catch(function(){});
+}
+</script>
+</body>
+</html>

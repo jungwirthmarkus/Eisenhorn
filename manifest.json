@@ -1,0 +1,9 @@
+{
+  "name": "Eisenhorn",
+  "short_name": "Eisenhorn",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#15191D",
+  "theme_color": "#15191D",
+  "icons": [{ "src": "icon.png", "sizes": "180x180", "type": "image/png" }]
+}
