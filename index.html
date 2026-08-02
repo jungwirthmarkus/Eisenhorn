@@ -119,6 +119,20 @@
   .del{background:transparent; border:none; color:var(--line); font-size:17px; line-height:1;
        padding:0 2px 0 8px; cursor:pointer}
   .del:hover{color:var(--brass)}
+  .week{display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin:16px 2px 0;
+        font-family:var(--mono); font-size:11px; color:var(--steel)}
+  .pips{display:flex; gap:4px}
+  .pips i{width:9px; height:9px; border-radius:5px; border:1px solid var(--line); display:block}
+  .pips i.on{background:var(--brass); border-color:var(--brass)}
+  .week .streak{margin-left:auto; color:var(--brass)}
+  .progress .dauer{color:var(--bone)}
+  .warm{font-family:var(--mono); font-size:11px; color:var(--steel); margin-top:9px;
+        padding:7px 10px; border-left:2px solid var(--line); background:rgba(255,255,255,.02)}
+  .pause{border:1px solid var(--line); border-radius:10px; padding:13px 14px; margin:13px 0 0;
+         background:var(--panel)}
+  .pause b{display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.13em;
+           text-transform:uppercase; color:var(--bone); margin-bottom:7px}
+  .pause span{display:block; font-size:12.5px; color:var(--steel); line-height:1.55; margin-bottom:7px}
   .why-halten{color:var(--brass)}
   .setcount{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:4px}
   .setcount button{background:transparent; border:1px solid var(--line); color:var(--steel);
@@ -184,8 +198,10 @@ function ex(id){ for(var i=0;i<EX.length;i++) if(EX[i].id===id) return EX[i]; re
 var KEY = "eisenhorn.v1";
 var WKEY = "eisenhorn.weight.v1";
 var XKEY = "eisenhorn.lastexport.v1";
+var PKEY = "eisenhorn.pause.v1";
 var logs = [];
 var weights = [];
+var pausen = [];
 function load(){
   try{
     var raw = localStorage.getItem(KEY);
@@ -197,11 +213,17 @@ function load(){
     weights = rw ? JSON.parse(rw) : [];
     if(!Array.isArray(weights)) weights = [];
   }catch(e){ weights = []; }
+  try{
+    var rp = localStorage.getItem(PKEY);
+    pausen = rp ? JSON.parse(rp) : [];
+    if(!Array.isArray(pausen)) pausen = [];
+  }catch(e){ pausen = []; }
 }
 function persist(){
   try{
     localStorage.setItem(KEY, JSON.stringify(logs));
     localStorage.setItem(WKEY, JSON.stringify(weights));
+    localStorage.setItem(PKEY, JSON.stringify(pausen));
     return true;
   }
   catch(e){ alert("Konnte nicht speichern. Ist der Speicher voll?"); return false; }
@@ -252,6 +274,14 @@ function suggest(id){
   var bar = last.bar || 1;
   var top = last.reps.every(function(r){ return r >= e.hi; });
   var reserve = last.reps.length > rampSets(e);   // mehr Sätze gemacht als vorgeschlagen
+
+  // Wiedereinstieg nach längerer Unterbrechung
+  var weg = Math.floor((Date.now() - new Date(last.date).getTime())/86400000);
+  if(weg >= 10){
+    var minus = weg >= 21 ? 2 : 1;
+    return {w:Math.max(0,last.w-minus),h:last.h,bar:bar,reps:e.lo,sets:rampSets(e),tone:"halten",
+      why:weg+" Tage her. Steig "+minus+" Stufe"+(minus>1?"n":"")+" tiefer ein – Kraft kommt schneller zurück, als sie geht. In zwei Einheiten bist du wieder da."};
+  }
 
   if(last.easy && top)
     return {w:last.w+2,h:last.h,bar:bar,reps:e.lo,sets:rampSets(e),tone:"hoch",
@@ -309,6 +339,81 @@ function backupText(){
   var n = backupAlt();
   if(n < 0) return "noch nie";
   return n === 0 ? "heute" : n === 1 ? "gestern" : "vor "+n+" Tagen";
+}
+
+/* ---------- Pausen ---------- */
+function aktivePause(){
+  for(var i=pausen.length-1;i>=0;i--) if(!pausen[i].bis) return pausen[i];
+  return null;
+}
+function istPause(tag){                       // Date -> in einer Pause?
+  var t = tag.getTime();
+  for(var i=0;i<pausen.length;i++){
+    var von = new Date(pausen[i].von).getTime();
+    var bis = pausen[i].bis ? new Date(pausen[i].bis).getTime() : Date.now();
+    if(t >= von && t <= bis) return true;
+  }
+  return false;
+}
+function pausentageInWoche(von){
+  var n = 0;
+  for(var i=0;i<7;i++){
+    var t = new Date(von.getTime() + i*86400000);
+    if(t.getTime() <= Date.now() && istPause(t)) n++;
+  }
+  return n;
+}
+function pauseTage(p){
+  return Math.floor((Date.now() - new Date(p.von).getTime())/86400000);
+}
+
+/* ---------- Woche & Dauer ---------- */
+function weekStart(d){
+  var x = new Date(d), day = (x.getDay()+6)%7;   // Montag = 0
+  x.setHours(0,0,0,0); x.setDate(x.getDate()-day);
+  return x;
+}
+function trainingstage(von, bis){
+  var tage = {};
+  logs.forEach(function(l){
+    var t = new Date(l.date);
+    if(t >= von && t < bis) tage[t.toDateString()] = 1;
+  });
+  return Object.keys(tage).length;
+}
+function wocheZaehler(){
+  var a = weekStart(new Date());
+  return trainingstage(a, new Date(a.getTime() + 7*86400000));
+}
+function wochenSerie(){
+  var n = 0, a = weekStart(new Date());
+  if(trainingstage(a, new Date(a.getTime()+7*86400000)) >= 3) n++;
+  var cur = new Date(a);
+  for(var i=0;i<520;i++){
+    cur.setDate(cur.getDate()-7);
+    var ende = new Date(cur.getTime()+7*86400000);
+    if(ende.getTime() < new Date(logs.length?logs[0].date:Date.now()).getTime()) break;
+    if(trainingstage(cur, ende) >= 3){ n++; continue; }
+    if(pausentageInWoche(cur) >= 4) continue;   // Pausenwoche zählt nicht, bricht aber auch nicht
+    break;
+  }
+  return n;
+}
+
+// Grobe Schätzung: Umbau 60 s, Aufwärmsatz 105 s, Arbeitssatz 45 s, Pause 75 s
+function dauerMin(liste){
+  var s = 0;
+  liste.forEach(function(e){
+    if(doneToday(e.id)) return;
+    var n = rampSets(e), warm = suggest(e.id).w != null ? 105 : 0;
+    s += 60 + warm + n*45 + Math.max(0,n-1)*75;
+  });
+  return Math.round(s/60);
+}
+
+function waermer(s){
+  if(s.w == null) return null;
+  return { w: Math.max(1, Math.round(s.w/2)), reps: 10 };
 }
 
 /* ---------- Körpergewicht ---------- */
@@ -401,6 +506,8 @@ function cardHTML(e){
       '<div class="sep"></div>'+
       '<div class="ro"><div class="lbl">Heute</div><div class="val">'+s.sets+'<span class="x">×</span>'+s.reps+'</div></div>'+
     '</div>';
+  var wa = waermer(s);
+  if(wa) h += '<div class="warm">Aufwärmen: W'+wa.w+' × '+wa.reps+', ruhig und ohne Anstrengung</div>';
   h += '<div class="why why-'+s.tone+'">'+esc(s.why)+'</div>';
 
   if(last) h += '<div class="lastrow"><span>zuletzt '+fmt(last.date)+' · W'+last.w+((last.bar||1)===2?' stark':'')+' · '+last.reps.join("/")+'</span>'+spark(hist)+'</div>';
@@ -435,7 +542,26 @@ function cardHTML(e){
 }
 
 function viewHeute(){
-  var d = due(), h = '<div class="plans">';
+  var pz = aktivePause();
+  var wz = wocheZaehler(), ws = wochenSerie();
+  var punkte = '';
+  for(var k=0;k<3;k++) punkte += '<i class="'+(k<wz?"on":"")+'"></i>';
+  var h = '<div class="week"><span class="pips">'+punkte+'</span>'+
+    '<span>'+(pz ? 'pausiert' : Math.min(wz,3)+' von 3 diese Woche'+(wz>3?' (+'+(wz-3)+')':''))+'</span>'+
+    (ws>0?'<span class="streak">'+ws+' '+(ws===1?'Woche':'Wochen')+' in Folge</span>':'')+
+    '</div>';
+
+  if(pz){
+    h += '<div class="pause"><b>'+(pz.grund==="verletzt"?"Pause · Verletzung":"Pause · Urlaub")+'</b>'+
+      '<span>Seit '+pauseTage(pz)+' Tagen. Die Wochenserie läuft solange nicht weiter und reißt auch nicht ab.</span>'+
+      '<span>'+(pz.grund==="verletzt"
+        ? 'Trainiere weiter, was nicht wehtut. Zwickt die Schulter, gehen Beine und Rumpf trotzdem – Kniebeugen, Kreuzheben, Ausfallschritte. Schmerz ist die Grenze, nicht der Plan.'
+        : 'Das Eisenhorn bleibt zu Hause, die Bewegungsserie nicht. Gehen, Wandern, Schwimmen zählen genauso. Kraft holst du danach in zwei Einheiten wieder auf.')+'</span>'+
+      '<button class="btn" data-pauseend="1">Pause beenden</button></div>';
+  }
+
+  var d = due();
+  h += '<div class="plans">';
   PLANS.forEach(function(p){
     var ld = lastDate(p);
     h += '<button class="plan'+(plan===p?" on":"")+'" data-plan="'+p+'">'+p+
@@ -447,7 +573,7 @@ function viewHeute(){
   var core = EX.filter(function(e){ return e.w===plan; });
 
   var rw = rampWeek();
-  if(rw <= 4){
+  if(rw <= 4 && !pz){
     var erste = core.length ? core[0].n : "der ersten Übung";
     h += '<div class="ramp"><b>Aufbauphase · Woche '+rw+' von 4</b><span>'+
       (rw <= 2
@@ -457,12 +583,14 @@ function viewHeute(){
   }
 
   var fertig = core.filter(function(e){ return doneToday(e.id); }).length;
+  var min = dauerMin(core);
   h += '<div class="progress"><span>'+fertig+' von '+core.length+' heute erledigt</span>'+
-       '<span class="bar"><i style="width:'+Math.round(fertig/core.length*100)+'%"></i></span></div>';
+       '<span class="bar"><i style="width:'+Math.round(fertig/core.length*100)+'%"></i></span>'+
+       '<span class="dauer">'+(min>0?'noch ~'+min+' min':'fertig')+'</span></div>';
 
   var lw = weights.length ? new Date(weights[weights.length-1].date) : null;
   var lwTage = lw ? Math.floor((Date.now()-lw.getTime())/86400000) : -1;
-  if(lwTage < 0 || lwTage >= 7)
+  if(!pz && (lwTage < 0 || lwTage >= 7))
     h += '<button class="dash" style="margin-bottom:13px" data-tab="verlauf">'+
          (lwTage < 0 ? 'Körpergewicht noch nie eingetragen' : 'Gewicht zuletzt vor '+lwTage+' Tagen – diese Woche fehlt')+
          '</button>';
@@ -541,7 +669,21 @@ function viewVerlauf(){
 }
 
 function viewMehr(){
+  var ap = aktivePause();
   return '<div style="height:18px"></div>'+
+
+  '<div class="card"><div class="name">Pause</div>'+
+    (ap
+      ? '<p class="note">Seit '+pauseTage(ap)+' Tagen pausiert ('+(ap.grund==="verletzt"?"Verletzung":"Urlaub")+'). '+
+        'Die Wochenserie ruht und reißt nicht ab. Beim Wiedereinstieg schlägt dir die App automatisch weniger Widerstand vor.</p>'+
+        '<button class="btn brass" data-pauseend="1">Pause beenden</button>'
+      : '<p class="note">Für Urlaub oder Verletzung. Das Eisenhorn steht zu Hause – die Bewegungsserie hältst du unterwegs trotzdem. '+
+        'Während der Pause ruht die Wochenserie, statt zu reißen.</p>'+
+        '<div class="seg" style="margin-top:12px">'+
+          '<button data-pause="urlaub">Urlaub</button>'+
+          '<button data-pause="verletzt">Verletzung</button>'+
+        '</div>')+
+  '</div>'+
 
   '<div class="card"><div class="name">Anfangen</div><ul class="rules">'+
     '<li><b>Die Einstiegsregel:</b> ein Satz der ersten Übung – Latzug bei A, Rudern bei B, Rudern vorgebeugt bei C. Das ist die ganze Verpflichtung. Neunzig Sekunden, das Horn steht schon eingestellt. Alles danach ist freiwillig.</li>'+
@@ -613,7 +755,7 @@ function render(){
 
 /* ---------- Interaktion ---------- */
 document.addEventListener("click", function(evt){
-  var t = evt.target.closest ? evt.target.closest("[data-tab],[data-plan],[data-open],[data-cancel],[data-save],[data-step],[data-sets],[data-del],[data-bar],[data-easy],[data-extra],[data-export],[data-import],[data-reset],[data-wopen],[data-wcancel],[data-wsave]") : null;
+  var t = evt.target.closest ? evt.target.closest("[data-tab],[data-plan],[data-open],[data-cancel],[data-save],[data-step],[data-sets],[data-del],[data-pause],[data-pauseend],[data-bar],[data-easy],[data-extra],[data-export],[data-import],[data-reset],[data-wopen],[data-wcancel],[data-wsave]") : null;
   if(!t) return;
   var ds = t.dataset;
 
@@ -644,6 +786,19 @@ document.addEventListener("click", function(evt){
   if(ds.cancel){ openId = null; return render(); }
   if(ds.bar){ draft.bar = parseInt(ds.bar,10); return render(); }
   if(ds.easy){ draft.easy = !draft.easy; return render(); }
+
+  if(ds.pause){
+    if(!aktivePause()){
+      pausen.push({ von:new Date().toISOString(), bis:null, grund:ds.pause });
+      persist();
+    }
+    tab = "heute"; return render();
+  }
+  if(ds.pauseend){
+    var ap = aktivePause();
+    if(ap){ ap.bis = new Date().toISOString(); persist(); }
+    return render();
+  }
 
   if(ds.del){
     var idx = parseInt(ds.del,10);
@@ -681,7 +836,7 @@ document.addEventListener("click", function(evt){
   }
 
   if(ds.export){
-    var payload = { version:2, exported:new Date().toISOString(), logs:logs, weights:weights };
+    var payload = { version:3, exported:new Date().toISOString(), logs:logs, weights:weights, pausen:pausen };
     var blob = new Blob([JSON.stringify(payload,null,1)], {type:"application/json"});
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -693,7 +848,7 @@ document.addEventListener("click", function(evt){
   }
   if(ds.import){ document.getElementById("file").click(); return; }
   if(ds.reset){
-    if(confirm("Wirklich alle Einträge löschen?")){ logs = []; weights = []; persist(); render(); }
+    if(confirm("Wirklich alle Einträge löschen?")){ logs = []; weights = []; pausen = []; persist(); render(); }
     return;
   }
 });
@@ -723,6 +878,7 @@ document.getElementById("file").addEventListener("change", function(e){
       }else if(d && Array.isArray(d.logs)){
         logs = d.logs;
         weights = Array.isArray(d.weights) ? d.weights : [];
+        pausen = Array.isArray(d.pausen) ? d.pausen : [];
       }else throw new Error("Format");
       persist(); render();
       alert(logs.length + " Trainingseinträge und " + weights.length + " Gewichtswerte eingelesen.");
