@@ -96,7 +96,18 @@
   .chip{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
         color:var(--steel); border:1px solid var(--line); border-radius:4px; padding:2px 5px;
         margin-left:4px; vertical-align:middle}
+  .ramp{border:1px solid var(--brass); border-radius:10px; padding:12px 14px; margin:0 0 13px;
+        background:rgba(203,163,60,.07)}
+  .ramp b{display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.13em;
+          text-transform:uppercase; color:var(--brass); margin-bottom:6px}
+  .ramp span{display:block; font-size:12.5px; color:var(--steel); line-height:1.55}
+  .ramp .deal{margin-top:8px; padding-top:8px; border-top:1px solid var(--line); color:var(--bone)}
   .why-halten{color:var(--brass)}
+  .setcount{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:4px}
+  .setcount button{background:transparent; border:1px solid var(--line); color:var(--steel);
+                   border-radius:6px; padding:7px 12px; font-family:var(--mono); font-size:11.5px; cursor:pointer}
+  .setcount button:disabled{opacity:.35}
+  .setcount span{font-family:var(--mono); font-size:11px; color:var(--steel)}
   .why-runter{color:var(--brass)}
   .why-hoch{color:var(--ok)}
   .files{display:none}
@@ -181,14 +192,33 @@ function doneToday(id){
   return !!(l && isToday(l.date));
 }
 
+/* ---------- Aufbaurampe ---------- */
+function startDate(){
+  if(!logs.length) return null;
+  var d = new Date(logs[0].date);
+  for(var i=1;i<logs.length;i++){ var t = new Date(logs[i].date); if(t < d) d = t; }
+  return d;
+}
+function rampWeek(){
+  var s = startDate();
+  if(!s) return 1;
+  return Math.floor((Date.now() - s.getTime()) / (7*86400000)) + 1;
+}
+function rampSets(e){
+  var w = rampWeek();
+  if(w <= 2) return 1;
+  if(w <= 4) return Math.min(2, e.sets);
+  return e.sets;
+}
+
 function suggest(id){
   var e = ex(id), all = allOf(id);
-  if(!all.length) return {w:null,h:null,reps:e.lo,sets:e.sets,tone:"neu",
+  if(!all.length) return {w:null,h:null,reps:e.lo,sets:rampSets(e),tone:"neu",
     why:"Erstes Mal. Widerstand so wählen, dass "+e.lo+" Wiederholungen fordernd sind."};
 
   var last = all[all.length-1];
   if(last.reps.every(function(r){ return r >= e.hi; }))
-    return {w:last.w+1,h:last.h,reps:e.lo,sets:e.sets,tone:"hoch",
+    return {w:last.w+1,h:last.h,reps:e.lo,sets:rampSets(e),tone:"hoch",
       why:"Letztes Mal alle Sätze auf "+e.hi+". Widerstand eine Stufe hoch."};
 
   // Einheiten am Stück mit demselben Widerstand
@@ -196,24 +226,30 @@ function suggest(id){
   for(var i=all.length-1; i>=0; i--){
     if(all[i].w === last.w) streak.unshift(all[i]); else break;
   }
-  var sum = function(x){ return x.reps.reduce(function(a,b){ return a+b; },0); };
+  // Mittelwert pro Satz, nicht Summe: sonst würde eine Kurzeinheit
+  // mit weniger Sätzen fälschlich als Rückschritt gewertet.
+  var mean = function(x){
+    var t = 0;
+    for(var k=0;k<x.reps.length;k++) t += x.reps[k];
+    return x.reps.length ? t/x.reps.length : 0;
+  };
 
   // Wie oft in Folge gab es keine Verbesserung?
   var stalls = 0;
   for(var j=streak.length-1; j>0; j--){
-    if(sum(streak[j]) <= sum(streak[j-1])) stalls++; else break;
+    if(mean(streak[j]) <= mean(streak[j-1])) stalls++; else break;
   }
 
   if(stalls >= 2)
-    return {w:Math.max(0,last.w-1),h:last.h,reps:e.lo,sets:e.sets,tone:"runter",
+    return {w:Math.max(0,last.w-1),h:last.h,reps:e.lo,sets:rampSets(e),tone:"runter",
       why:"Dreimal keine Steigerung. Eine Stufe zurück und sauber neu aufbauen – das ist kein Rückschritt, sondern Anlauf."};
 
   var min = Math.min.apply(null,last.reps);
   if(stalls === 1)
-    return {w:last.w,h:last.h,reps:Math.min(min+1,e.hi),sets:e.sets,tone:"halten",
+    return {w:last.w,h:last.h,reps:Math.min(min+1,e.hi),sets:rampSets(e),tone:"halten",
       why:"Letztes Mal keine Steigerung. Widerstand halten, Technik und Tempo prüfen, Schlaf im Blick behalten."};
 
-  return {w:last.w,h:last.h,reps:Math.min(min+1,e.hi),sets:e.sets,tone:"normal",
+  return {w:last.w,h:last.h,reps:Math.min(min+1,e.hi),sets:rampSets(e),tone:"normal",
     why:"Gleicher Widerstand, eine Wiederholung mehr als beim schwächsten Satz."};
 }
 
@@ -310,6 +346,10 @@ function cardHTML(e){
       '</div><div class="hint">Geschaffte Wiederholungen</div>';
     for(var i=0;i<d.reps.length;i++)
       h += '<div class="setline"><div class="n">Satz '+(i+1)+'</div><div style="flex:1">'+stepper("r",i,d.reps[i],"")+'</div></div>';
+    h += '<div class="setcount">'+
+      '<button data-sets="-1"'+(d.reps.length<=1?' disabled':'')+'>− Satz</button>'+
+      '<span>'+d.reps.length+' von '+rampSets(e)+' geplant</span>'+
+      '<button data-sets="1"'+(d.reps.length>=6?' disabled':'')+'>+ Satz</button></div>';
     h += '<div class="row" style="margin-top:12px">'+
       '<button class="btn ghost" style="flex:1;margin:0" data-cancel="1">Abbrechen</button>'+
       '<button class="btn brass" style="flex:2;margin:0" data-save="'+e.id+'">Speichern</button></div></div>';
@@ -325,6 +365,16 @@ function viewHeute(){
          '<small class="'+(d===p?"due":"")+'">'+(d===p?"dran":ago(p==="A"?dA:dB))+'</small></button>';
   });
   h += '</div>';
+
+  var rw = rampWeek();
+  if(rw <= 4){
+    var n = rw <= 2 ? 1 : 2;
+    h += '<div class="ramp"><b>Aufbauphase · Woche '+rw+' von 4</b><span>'+
+      (rw <= 2
+        ? 'Heute ein Satz pro Übung. Ziel ist nur, deine Einstellungen zu finden und einzutragen – kein Leistungsanspruch. Das hält auch den Muskelkater klein.'
+        : 'Heute zwei Sätze pro Übung. Ab jetzt greift die Progression, die Zahlen fangen an zu steigen.')+
+      '</span><span class="deal">Dein Vertrag: ein Satz Latzug. Alles danach ist freiwillig.</span></div>';
+  }
 
   var core = EX.filter(function(e){ return e.w===plan; });
   var fertig = core.filter(function(e){ return doneToday(e.id); }).length;
@@ -401,6 +451,15 @@ function viewVerlauf(){
 function viewMehr(){
   return '<div style="height:18px"></div>'+
 
+  '<div class="card"><div class="name">Anfangen</div><ul class="rules">'+
+    '<li><b>Die Einstiegsregel:</b> ein Satz Latzug. Das ist die ganze Verpflichtung. Neunzig Sekunden, das Horn steht schon eingestellt. Alles danach ist freiwillig.</li>'+
+    '<li>Woche 1 und 2: ein Satz pro Übung. Es geht nur darum, die Einstellungen zu finden.</li>'+
+    '<li>Woche 3 und 4: zwei Sätze. Jetzt steigen die Zahlen.</li>'+
+    '<li>Ab Woche 5: drei Sätze, Zusatzübungen nach Lust. Die App stellt das von allein um.</li>'+
+    '<li>Häng die Einheit an etwas Bestehendes: direkt nachdem deine Tochter im Bett ist, oder unmittelbar vor dem Podcast-Gehen. Ein fester Auslöser ersetzt jede Erinnerung.</li>'+
+    '<li>Miss in den ersten vier Wochen nur eins: drei Einträge pro Woche. Nicht Gewicht, nicht Widerstand.</li>'+
+  '</ul></div>'+
+
   '<div class="card"><div class="name">Ausführung</div><ul class="rules">'+
     '<li>Ablassen in zwei bis drei Sekunden, kräftig zurück, nie reißen. Das Ablassen ist die halbe Arbeit.</li>'+
     '<li>Zwei Wiederholungen Reserve lassen. Nur der letzte Satz einer Übung darf näher ran.</li>'+
@@ -410,8 +469,17 @@ function viewMehr(){
     '<li>Trag ein, was du <b>mit</b> dieser Reserve geschafft hast. Sonst schlägt die App zu früh mehr Widerstand vor.</li>'+
   '</ul></div>'+
 
+  '<div class="card"><div class="name">Wenn wenig Zeit ist</div><ul class="rules">'+
+    '<li><b>Voll</b> – drei Übungen, je drei Sätze. Rund 25 Minuten.</li>'+
+    '<li><b>Kurz</b> – drei Übungen, je ein Satz, dafür bis nah ans Limit. Acht bis zehn Minuten. Hält dein Niveau, auch über Wochen.</li>'+
+    '<li><b>Notfall</b> – eine Übung, zwei Sätze. Vier Minuten. Besser als nichts, und der Kopf bleibt im Spiel.</li>'+
+    '<li>Reihenfolge beim Kürzen: erst die Zusatzübungen streichen, dann Sätze reduzieren, zuletzt Übungen weglassen.</li>'+
+    '<li>Im Eingabefeld kannst du Sätze entfernen oder ergänzen. Die App wertet eine Kurzeinheit nicht als Rückschritt.</li>'+
+    '<li>Lieber dreimal kurz als einmal perfekt und zweimal gar nicht.</li>'+
+  '</ul></div>'+
+
   '<div class="card"><div class="name">Rhythmus</div><ul class="rules">'+
-    '<li>Kraft dreimal pro Woche, etwa Montag, Mittwoch, Freitag. Zwischen zwei Kraft-Einheiten mindestens ein Tag.</li>'+
+    '<li>Kraft dreimal pro Woche, mit mindestens einem Tag Abstand. Welche Wochentage, ist egal – die App rechnet ab der letzten Einheit, nicht ab dem Kalender.</li>'+
     '<li>Immer abwechselnd A, B, A – in der nächsten Woche B, A, B. Was dran ist, steht oben.</li>'+
     '<li>An den übrigen Tagen Ausdauer: Rudern, Bike, Gehen. Das ist frei austauschbar.</li>'+
     '<li>Eine Wanderung ersetzt Ausdauer, aber nie Kraft. Kraft ist das Einzige, was nicht vertretbar ist.</li>'+
@@ -449,7 +517,7 @@ function render(){
 
 /* ---------- Interaktion ---------- */
 document.addEventListener("click", function(evt){
-  var t = evt.target.closest ? evt.target.closest("[data-tab],[data-plan],[data-open],[data-cancel],[data-save],[data-step],[data-extra],[data-export],[data-import],[data-reset],[data-wopen],[data-wcancel],[data-wsave]") : null;
+  var t = evt.target.closest ? evt.target.closest("[data-tab],[data-plan],[data-open],[data-cancel],[data-save],[data-step],[data-sets],[data-extra],[data-export],[data-import],[data-reset],[data-wopen],[data-wcancel],[data-wsave]") : null;
   if(!t) return;
   var ds = t.dataset;
 
@@ -478,6 +546,13 @@ document.addEventListener("click", function(evt){
     return;
   }
   if(ds.cancel){ openId = null; return render(); }
+
+  if(ds.sets){
+    var n = parseInt(ds.sets,10);
+    if(n > 0 && draft.reps.length < 6) draft.reps.push(draft.reps[draft.reps.length-1]);
+    if(n < 0 && draft.reps.length > 1) draft.reps.pop();
+    return render();
+  }
 
   if(ds.step){
     var d = parseInt(ds.d,10);
