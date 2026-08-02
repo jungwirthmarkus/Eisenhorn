@@ -24,8 +24,9 @@ Danach startet die App im Vollbild ohne Browser-Leiste und funktioniert auch off
 
 ## Sicherung
 
-Im Reiter **Daten** exportierst du alle Einträge als JSON-Datei. Einmal im Monat reicht.
-Die Datei lässt sich über denselben Reiter wieder einlesen, etwa nach einem Gerätewechsel.
+Im Reiter **Mehr** exportierst du alle Einträge als JSON-Datei. Einmal im Monat reicht.
+Die Datei enthält Trainingseinträge und Körpergewicht und lässt sich über denselben Reiter
+wieder einlesen, etwa nach einem Gerätewechsel.
 
 Wichtig: Löschst du das Icon vom Homescreen oder leerst du die Website-Daten in den
 iOS-Einstellungen, sind die Einträge weg. Deshalb der Export.

@@ -83,6 +83,22 @@
   .hrow+.hrow{border-top:1px solid var(--line)}
   .empty{margin-top:44px; text-align:center; color:var(--steel); font-size:14px; line-height:1.6}
   .note{font-size:12.5px; color:var(--steel); line-height:1.55; margin:14px 0 0}
+  .progress{display:flex; align-items:center; gap:10px; margin:0 2px 13px;
+            font-family:var(--mono); font-size:11px; color:var(--steel)}
+  .progress .bar{flex:1; height:3px; background:var(--line); border-radius:2px; overflow:hidden}
+  .progress .bar i{display:block; height:100%; background:var(--brass); transition:width .3s}
+  .card.done{opacity:.62}
+  .check{color:var(--ok); font-size:14px; margin-left:2px}
+  .rules{margin:11px 0 0; padding-left:17px; color:var(--steel); font-size:13px; line-height:1.62}
+  .rules li{margin-bottom:7px}
+  .rules li:last-child{margin-bottom:0}
+  .rules b{color:var(--bone); font-weight:600}
+  .chip{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
+        color:var(--steel); border:1px solid var(--line); border-radius:4px; padding:2px 5px;
+        margin-left:4px; vertical-align:middle}
+  .why-halten{color:var(--brass)}
+  .why-runter{color:var(--brass)}
+  .why-hoch{color:var(--ok)}
   .files{display:none}
 </style>
 </head>
@@ -96,7 +112,7 @@
     <div class="tabs">
       <button class="tab on" data-tab="heute">Heute</button>
       <button class="tab" data-tab="verlauf">Verlauf</button>
-      <button class="tab" data-tab="daten">Daten</button>
+      <button class="tab" data-tab="mehr">Mehr</button>
     </div>
   </div>
   <div id="body"></div>
@@ -109,31 +125,42 @@
 /* ---------- Übungen ---------- */
 var V = "https://eisenhorn.com/de-ch/training/kraftuebungen/";
 var EX = [
-  {id:"knie",     n:"Kniebeugen",               w:"A",  sets:3, lo:8,  hi:12, url:V+"203-kniebeugen/",                            setup:"Griffstange auf den Schultern"},
   {id:"lat",      n:"Latzug zur Brust",         w:"A",  sets:3, lo:8,  hi:12, url:V+"latzug-zur-brust/",                          setup:"Griffstange, Horn hoch"},
   {id:"bank",     n:"Bankdrücken",              w:"A",  sets:3, lo:8,  hi:12, url:V+"bankdruecken-brustdruecken/",                setup:"Bank, Griffstange"},
+  {id:"knie",     n:"Kniebeugen",               w:"A",  sets:3, lo:8,  hi:12, url:V+"203-kniebeugen/",                            setup:"Griffstange auf den Schultern", pm:1},
   {id:"face",     n:"Facepulls",                w:"A+", sets:2, lo:12, hi:18, url:V+"facepulls-am-seilzug/",                      setup:"Seilzug in Kopfhöhe"},
   {id:"rot",      n:"Rumpfrotation",            w:"A+", sets:2, lo:10, hi:15, url:V+"rumpfrotation-am-seilzug/",                  setup:"Seilzug in Brusthöhe"},
-  {id:"rdl",      n:"Rumänisches Kreuzheben",   w:"B",  sets:3, lo:8,  hi:12, url:V+"205-rumaenisches-kreuzheben/",               setup:"Griffstange, Horn tief"},
   {id:"rudern",   n:"Rudern einarmig",          w:"B",  sets:3, lo:8,  hi:12, url:V+"rudern-einarmig/",                           setup:"Griff, mittlere Höhe"},
   {id:"schulter", n:"Schulterdrücken",          w:"B",  sets:3, lo:8,  hi:12, url:V+"200-schulterdruecken-vor-dem-kopf/",         setup:"Griffstange, Schulterhöhe"},
+  {id:"rdl",      n:"Rumänisches Kreuzheben",   w:"B",  sets:3, lo:8,  hi:12, url:V+"205-rumaenisches-kreuzheben/",               setup:"Griffstange, Horn tief", pm:1},
   {id:"rev",      n:"Reverse Flys",             w:"B+", sets:2, lo:12, hi:18, url:V+"224-reverse-flys-vorgebeugt-mit-seilzug/",   setup:"Seilzug tief, vorgebeugt"},
-  {id:"lunge",    n:"Ausfallschritte",          w:"B+", sets:2, lo:10, hi:12, url:V+"ausfallschritte/",                           setup:"Griffband, Horn tief"}
+  {id:"lunge",    n:"Ausfallschritte",          w:"B+", sets:2, lo:10, hi:12, url:V+"ausfallschritte/",                           setup:"Griffband, Horn tief", pm:1}
 ];
 function ex(id){ for(var i=0;i<EX.length;i++) if(EX[i].id===id) return EX[i]; return null; }
 
 /* ---------- Speicher ---------- */
 var KEY = "eisenhorn.v1";
+var WKEY = "eisenhorn.weight.v1";
 var logs = [];
+var weights = [];
 function load(){
   try{
     var raw = localStorage.getItem(KEY);
     logs = raw ? JSON.parse(raw) : [];
     if(!Array.isArray(logs)) logs = [];
   }catch(e){ logs = []; }
+  try{
+    var rw = localStorage.getItem(WKEY);
+    weights = rw ? JSON.parse(rw) : [];
+    if(!Array.isArray(weights)) weights = [];
+  }catch(e){ weights = []; }
 }
 function persist(){
-  try{ localStorage.setItem(KEY, JSON.stringify(logs)); return true; }
+  try{
+    localStorage.setItem(KEY, JSON.stringify(logs));
+    localStorage.setItem(WKEY, JSON.stringify(weights));
+    return true;
+  }
   catch(e){ alert("Konnte nicht speichern. Ist der Speicher voll?"); return false; }
 }
 
@@ -145,16 +172,60 @@ function lastOf(id){
 }
 function allOf(id){ return logs.filter(function(l){ return l.ex===id; }); }
 
+function isToday(iso){
+  var d = new Date(iso), n = new Date();
+  return d.getFullYear()===n.getFullYear() && d.getMonth()===n.getMonth() && d.getDate()===n.getDate();
+}
+function doneToday(id){
+  var l = lastOf(id);
+  return !!(l && isToday(l.date));
+}
+
 function suggest(id){
-  var e = ex(id), last = lastOf(id);
-  if(!last) return {w:null,h:null,reps:e.lo,sets:e.sets,
+  var e = ex(id), all = allOf(id);
+  if(!all.length) return {w:null,h:null,reps:e.lo,sets:e.sets,tone:"neu",
     why:"Erstes Mal. Widerstand so wählen, dass "+e.lo+" Wiederholungen fordernd sind."};
-  var top = last.reps.every(function(r){ return r >= e.hi; });
-  if(top) return {w:last.w+1,h:last.h,reps:e.lo,sets:e.sets,
-    why:"Letztes Mal alle Sätze auf "+e.hi+". Widerstand eine Stufe hoch."};
+
+  var last = all[all.length-1];
+  if(last.reps.every(function(r){ return r >= e.hi; }))
+    return {w:last.w+1,h:last.h,reps:e.lo,sets:e.sets,tone:"hoch",
+      why:"Letztes Mal alle Sätze auf "+e.hi+". Widerstand eine Stufe hoch."};
+
+  // Einheiten am Stück mit demselben Widerstand
+  var streak = [];
+  for(var i=all.length-1; i>=0; i--){
+    if(all[i].w === last.w) streak.unshift(all[i]); else break;
+  }
+  var sum = function(x){ return x.reps.reduce(function(a,b){ return a+b; },0); };
+
+  // Wie oft in Folge gab es keine Verbesserung?
+  var stalls = 0;
+  for(var j=streak.length-1; j>0; j--){
+    if(sum(streak[j]) <= sum(streak[j-1])) stalls++; else break;
+  }
+
+  if(stalls >= 2)
+    return {w:Math.max(0,last.w-1),h:last.h,reps:e.lo,sets:e.sets,tone:"runter",
+      why:"Dreimal keine Steigerung. Eine Stufe zurück und sauber neu aufbauen – das ist kein Rückschritt, sondern Anlauf."};
+
   var min = Math.min.apply(null,last.reps);
-  return {w:last.w,h:last.h,reps:Math.min(min+1,e.hi),sets:e.sets,
+  if(stalls === 1)
+    return {w:last.w,h:last.h,reps:Math.min(min+1,e.hi),sets:e.sets,tone:"halten",
+      why:"Letztes Mal keine Steigerung. Widerstand halten, Technik und Tempo prüfen, Schlaf im Blick behalten."};
+
+  return {w:last.w,h:last.h,reps:Math.min(min+1,e.hi),sets:e.sets,tone:"normal",
     why:"Gleicher Widerstand, eine Wiederholung mehr als beim schwächsten Satz."};
+}
+
+/* ---------- Körpergewicht ---------- */
+function avgLast(n, skip){
+  var s = weights.slice(); // chronologisch
+  var end = s.length - (skip||0);
+  var part = s.slice(Math.max(0,end-n), end);
+  if(!part.length) return null;
+  var t = 0;
+  for(var i=0;i<part.length;i++) t += part[i].kg;
+  return t/part.length;
 }
 
 function lastDate(prefix){
@@ -180,6 +251,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g,function(c){
 /* ---------- Zustand ---------- */
 var tab = "heute", plan = "A", showExtra = false, openId = null, saved = {};
 var draft = {};
+var wOpen = false, wDraft = 88;
 
 function due(){
   var a = lastDate("A"), b = lastDate("B");
@@ -206,10 +278,12 @@ function stepper(kind, i, val, unit){
 }
 
 function cardHTML(e){
-  var s = suggest(e.id), last = lastOf(e.id), open = openId===e.id;
+  var s = suggest(e.id), last = lastOf(e.id), open = openId===e.id, fertig = doneToday(e.id);
   var hist = allOf(e.id).slice(-8).map(function(l){ return l.w; });
-  var h = '<div class="card'+(saved[e.id]?" saved":"")+'" data-card="'+e.id+'">'+
-    '<div class="ctop"><div><div class="name">'+esc(e.n)+'</div>'+
+  var h = '<div class="card'+(saved[e.id]?" saved":"")+(fertig&&!open?" done":"")+'" data-card="'+e.id+'">'+
+    '<div class="ctop"><div><div class="name">'+esc(e.n)+
+    (fertig?' <span class="check">✓</span>':'')+
+    (e.pm?' <span class="chip">abends</span>':'')+'</div>'+
     '<div class="setup">'+esc(e.setup)+'</div></div>'+
     '<a class="vid" href="'+e.url+'" target="_blank" rel="noreferrer">Video</a></div>'+
     '<div class="readout">'+
@@ -220,14 +294,14 @@ function cardHTML(e){
         (s.w==null?'—':s.w)+'</div></div>'+
       '<div class="sep"></div>'+
       '<div class="ro"><div class="lbl">Heute</div><div class="val">'+s.sets+'<span class="x">×</span>'+s.reps+'</div></div>'+
-    '</div>'+
-    '<div class="why">'+esc(s.why)+'</div>';
+    '</div>';
+  h += '<div class="why why-'+s.tone+'">'+esc(s.why)+'</div>';
 
   if(last) h += '<div class="lastrow"><span>zuletzt '+fmt(last.date)+' · W'+last.w+' · '+last.reps.join("/")+'</span>'+spark(hist)+'</div>';
 
   if(!open){
-    h += '<button class="btn'+(saved[e.id]?" ok":"")+'" data-open="'+e.id+'">'+
-         (saved[e.id]?"Gespeichert":(last?"Eintragen":"Erste Einstellung eintragen"))+'</button>';
+    h += '<button class="btn'+(saved[e.id]?" ok":(fertig?" ghost":""))+'" data-open="'+e.id+'">'+
+         (saved[e.id]?"Gespeichert":(fertig?"Heute erledigt · noch einen Satz":(last?"Eintragen":"Erste Einstellung eintragen")))+'</button>';
   }else{
     var d = draft;
     h += '<div class="form"><div class="row">'+
@@ -251,7 +325,13 @@ function viewHeute(){
          '<small class="'+(d===p?"due":"")+'">'+(d===p?"dran":ago(p==="A"?dA:dB))+'</small></button>';
   });
   h += '</div>';
-  EX.filter(function(e){ return e.w===plan; }).forEach(function(e){ h += cardHTML(e); });
+
+  var core = EX.filter(function(e){ return e.w===plan; });
+  var fertig = core.filter(function(e){ return doneToday(e.id); }).length;
+  h += '<div class="progress"><span>'+fertig+' von '+core.length+' heute erledigt</span>'+
+       '<span class="bar"><i style="width:'+Math.round(fertig/core.length*100)+'%"></i></span></div>';
+
+  core.forEach(function(e){ h += cardHTML(e); });
   h += '<button class="dash" data-extra="1">'+(showExtra?"Zusatz ausblenden":"Zusatz, wenn Zeit ist")+'</button>';
   if(showExtra){
     h += '<div style="height:11px"></div>';
@@ -260,11 +340,47 @@ function viewHeute(){
   return h;
 }
 
+function weightCard(){
+  var cur = avgLast(4,0), prev = avgLast(4,4), last = weights.length?weights[weights.length-1]:null;
+  var h = '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center">'+
+    '<div class="name">Körpergewicht</div>';
+  if(cur!=null && prev!=null){
+    var d = cur - prev;
+    h += '<div style="font-family:var(--mono);font-size:12px;color:'+(d<0?"var(--ok)":d>0?"var(--brass)":"var(--steel)")+'">'+
+         (d>0?"+":"")+d.toFixed(1)+' kg</div>';
+  }
+  h += '</div>';
+
+  if(cur!=null){
+    h += '<div class="readout" style="margin-top:12px">'+
+      '<div class="ro"><div class="lbl">Mittel 4 Wochen</div><div class="val">'+cur.toFixed(1)+'<span class="u">kg</span></div></div>'+
+      '<div class="sep"></div>'+
+      '<div class="ro"><div class="lbl">Letzter Wert</div><div class="val" style="color:var(--steel)">'+last.kg.toFixed(1)+'<span class="u">kg</span></div></div>'+
+      '</div>';
+    var vals = weights.slice(-16).map(function(x){ return x.kg; });
+    if(vals.length>1) h += '<div style="margin-top:11px">'+spark(vals)+'</div>';
+    h += '<p class="note">Nur das Mittel zählt. Ein einzelner Tag sagt dir nichts, das ist Wasser und Darminhalt.</p>';
+  }else{
+    h += '<p class="note">Einmal pro Woche, immer am selben Wochentag, morgens nach dem Aufstehen. Nach vier Werten zeigt dir die App den Trend statt der Tagesschwankung.</p>';
+  }
+
+  if(wOpen){
+    h += '<div class="form"><div class="row">'+
+      '<div class="stp"><div class="lbl">Gewicht</div>'+stepper("kg",0,wDraft.toFixed(1),"kg")+'</div></div>'+
+      '<div class="row" style="margin-top:12px">'+
+      '<button class="btn ghost" style="flex:1;margin:0" data-wcancel="1">Abbrechen</button>'+
+      '<button class="btn brass" style="flex:2;margin:0" data-wsave="1">Speichern</button></div></div>';
+  }else{
+    h += '<button class="btn" data-wopen="1">Gewicht eintragen</button>';
+  }
+  return h+'</div>';
+}
+
 function viewVerlauf(){
   var ids = [];
   logs.forEach(function(l){ if(ids.indexOf(l.ex)<0) ids.push(l.ex); });
-  if(!ids.length) return '<div class="empty">Noch nichts eingetragen.<br>Nach der ersten Einheit steht hier deine Steigerung.</div>';
-  var h = '<div style="height:18px"></div>';
+  var h = '<div style="height:18px"></div>' + weightCard();
+  if(!ids.length) return h+'<div class="empty">Noch keine Übung eingetragen.<br>Nach der ersten Einheit steht hier deine Steigerung.</div>';
   ids.forEach(function(id){
     var all = allOf(id), rows = all.slice(-12).reverse(), diff = rows[0].w - all[0].w;
     h += '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center">'+
@@ -282,33 +398,70 @@ function viewVerlauf(){
   return h;
 }
 
-function viewDaten(){
-  return '<div style="height:18px"></div><div class="card">'+
-    '<div class="name">Sicherung</div>'+
-    '<p class="note">'+logs.length+' Einträge liegen lokal auf diesem Gerät. Sie gehen niemals an einen Server. '+
-    'Genau deshalb solltest du sie ab und zu exportieren – die Datei landet in deinen Dateien oder iCloud.</p>'+
+function viewMehr(){
+  return '<div style="height:18px"></div>'+
+
+  '<div class="card"><div class="name">Ausführung</div><ul class="rules">'+
+    '<li>Ablassen in zwei bis drei Sekunden, kräftig zurück, nie reißen. Das Ablassen ist die halbe Arbeit.</li>'+
+    '<li>Zwei Wiederholungen Reserve lassen. Nur der letzte Satz einer Übung darf näher ran.</li>'+
+    '<li>Technik geht vor. Rundet der Rücken oder schwingst du, ist der Satz vorbei.</li>'+
+    '<li>Facepulls und Reverse Flys bewusst locker und mit viel Reserve. Die sind für den Nacken, nicht für Rekorde.</li>'+
+    '<li>Pause zwischen den Sätzen 60 bis 90 Sekunden.</li>'+
+    '<li>Trag ein, was du <b>mit</b> dieser Reserve geschafft hast. Sonst schlägt die App zu früh mehr Widerstand vor.</li>'+
+  '</ul></div>'+
+
+  '<div class="card"><div class="name">Rhythmus</div><ul class="rules">'+
+    '<li>Kraft dreimal pro Woche, etwa Montag, Mittwoch, Freitag. Zwischen zwei Kraft-Einheiten mindestens ein Tag.</li>'+
+    '<li>Immer abwechselnd A, B, A – in der nächsten Woche B, A, B. Was dran ist, steht oben.</li>'+
+    '<li>An den übrigen Tagen Ausdauer: Rudern, Bike, Gehen. Das ist frei austauschbar.</li>'+
+    '<li>Eine Wanderung ersetzt Ausdauer, aber nie Kraft. Kraft ist das Einzige, was nicht vertretbar ist.</li>'+
+    '<li>Starte auf der Watch ein Krafttraining. Dann zahlt die Einheit auf deine Bewegungsserie ein.</li>'+
+  '</ul></div>'+
+
+  '<div class="card"><div class="name">Über den Tag aufteilen</div><ul class="rules">'+
+    '<li>Geht problemlos. Jede Übung wird einzeln gespeichert, oben siehst du, was heute noch offen ist.</li>'+
+    '<li>Morgens gut geeignet: Latzug, Rudern, Facepulls, Schulterdrücken.</li>'+
+    '<li>Kniebeuge und Kreuzheben lieber abends. Direkt nach dem Aufstehen ist die Wirbelsäule steifer und empfindlicher bei Belastung unter Vorbeuge.</li>'+
+    '<li>Vor jeder Teileinheit ein Aufwärmsatz mit etwa halbem Widerstand, zehn ruhige Wiederholungen.</li>'+
+    '<li>Zwei Übungen morgens und zwei abends sind nicht weniger wert als vier am Stück.</li>'+
+  '</ul></div>'+
+
+  '<div class="card"><div class="name">Sicherung</div>'+
+    '<p class="note">'+logs.length+' Trainingseinträge und '+weights.length+' Gewichtswerte liegen lokal auf diesem Gerät und gehen nie an einen Server. '+
+    'Genau deshalb solltest du sie ab und zu exportieren.</p>'+
     '<button class="btn brass" data-export="1">Exportieren</button>'+
     '<button class="btn ghost" data-import="1">Sicherung einlesen</button></div>'+
-    '<div class="card"><div class="name">Zurücksetzen</div>'+
+
+  '<div class="card"><div class="name">Zurücksetzen</div>'+
     '<p class="note">Löscht alle Einträge auf diesem Gerät. Vorher exportieren.</p>'+
     '<button class="btn ghost" data-reset="1">Alles löschen</button></div>';
 }
 
 function render(){
   document.getElementById("title").textContent =
-    tab==="heute" ? "Heute" : tab==="verlauf" ? "Steigerung" : "Daten";
+    tab==="heute" ? "Heute" : tab==="verlauf" ? "Steigerung" : "Regeln";
   Array.prototype.forEach.call(document.querySelectorAll(".tab"), function(b){
     b.classList.toggle("on", b.dataset.tab===tab);
   });
   document.getElementById("body").innerHTML =
-    tab==="heute" ? viewHeute() : tab==="verlauf" ? viewVerlauf() : viewDaten();
+    tab==="heute" ? viewHeute() : tab==="verlauf" ? viewVerlauf() : viewMehr();
 }
 
 /* ---------- Interaktion ---------- */
 document.addEventListener("click", function(evt){
-  var t = evt.target.closest ? evt.target.closest("[data-tab],[data-plan],[data-open],[data-cancel],[data-save],[data-step],[data-extra],[data-export],[data-import],[data-reset]") : null;
+  var t = evt.target.closest ? evt.target.closest("[data-tab],[data-plan],[data-open],[data-cancel],[data-save],[data-step],[data-extra],[data-export],[data-import],[data-reset],[data-wopen],[data-wcancel],[data-wsave]") : null;
   if(!t) return;
   var ds = t.dataset;
+
+  if(ds.wopen){
+    wDraft = weights.length ? weights[weights.length-1].kg : 88;
+    wOpen = true; return render();
+  }
+  if(ds.wcancel){ wOpen = false; return render(); }
+  if(ds.wsave){
+    weights.push({ date:new Date().toISOString(), kg: Math.round(wDraft*10)/10 });
+    persist(); wOpen = false; return render();
+  }
 
   if(ds.tab){ tab = ds.tab; openId = null; return render(); }
   if(ds.plan){ plan = ds.plan; openId = null; return render(); }
@@ -328,7 +481,8 @@ document.addEventListener("click", function(evt){
 
   if(ds.step){
     var d = parseInt(ds.d,10);
-    if(ds.step==="h") draft.h = Math.max(0, draft.h + d*5);
+    if(ds.step==="kg") wDraft = Math.max(0, Math.round((wDraft + d*0.1)*10)/10);
+    else if(ds.step==="h") draft.h = Math.max(0, draft.h + d*5);
     else if(ds.step==="w") draft.w = Math.max(0, draft.w + d);
     else { var i2 = parseInt(ds.i,10); draft.reps[i2] = Math.max(0, draft.reps[i2] + d); }
     return render();
@@ -345,7 +499,8 @@ document.addEventListener("click", function(evt){
   }
 
   if(ds.export){
-    var blob = new Blob([JSON.stringify(logs,null,1)], {type:"application/json"});
+    var payload = { version:2, exported:new Date().toISOString(), logs:logs, weights:weights };
+    var blob = new Blob([JSON.stringify(payload,null,1)], {type:"application/json"});
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "eisenhorn-" + new Date().toISOString().slice(0,10) + ".json";
@@ -354,7 +509,7 @@ document.addEventListener("click", function(evt){
   }
   if(ds.import){ document.getElementById("file").click(); return; }
   if(ds.reset){
-    if(confirm("Wirklich alle Einträge löschen?")){ logs = []; persist(); render(); }
+    if(confirm("Wirklich alle Einträge löschen?")){ logs = []; weights = []; persist(); render(); }
     return;
   }
 });
@@ -365,9 +520,14 @@ document.getElementById("file").addEventListener("change", function(e){
   r.onload = function(){
     try{
       var d = JSON.parse(r.result);
-      if(!Array.isArray(d)) throw new Error("Format");
-      logs = d; persist(); render();
-      alert(d.length + " Einträge eingelesen.");
+      if(Array.isArray(d)){          // altes Format: nur Trainingseinträge
+        logs = d;
+      }else if(d && Array.isArray(d.logs)){
+        logs = d.logs;
+        weights = Array.isArray(d.weights) ? d.weights : [];
+      }else throw new Error("Format");
+      persist(); render();
+      alert(logs.length + " Trainingseinträge und " + weights.length + " Gewichtswerte eingelesen.");
     }catch(err){ alert("Datei konnte nicht gelesen werden."); }
   };
   r.readAsText(f);
