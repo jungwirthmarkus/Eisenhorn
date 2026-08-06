@@ -116,8 +116,8 @@
           background:transparent; color:var(--steel); font-size:12.5px; cursor:pointer}
   .toggle.on{border-style:solid; border-color:var(--brass); color:var(--brass)}
   .chip.side{color:var(--brass); border-color:var(--brass)}
-  .del{background:transparent; border:none; color:var(--line); font-size:17px; line-height:1;
-       padding:0 2px 0 8px; cursor:pointer}
+  .del{background:transparent; border:none; color:var(--steel); font-size:18px; line-height:1;
+       padding:6px 4px 6px 14px; margin:-6px 0; cursor:pointer; opacity:.55}
   .del:hover{color:var(--brass)}
   .week{display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin:16px 2px 0;
         font-family:var(--mono); font-size:11px; color:var(--steel)}
@@ -133,6 +133,18 @@
   .pause b{display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.13em;
            text-transform:uppercase; color:var(--bone); margin-bottom:7px}
   .pause span{display:block; font-size:12.5px; color:var(--steel); line-height:1.55; margin-bottom:7px}
+  .frei{border:1px solid var(--line); border-radius:10px; padding:13px 14px; margin:16px 0 4px; background:var(--panel)}
+  .frei b{display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.13em;
+          text-transform:uppercase; color:var(--brass); margin-bottom:7px}
+  .frei span{display:block; font-size:12.5px; color:var(--steel); line-height:1.55}
+  .kat{font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase;
+       color:var(--steel); margin:20px 2px 9px}
+  .vid.hide{background:transparent; cursor:pointer; color:var(--steel); font-size:13px; line-height:1; padding:4px 9px}
+  .hiddenrow{display:flex; align-items:center; justify-content:space-between; gap:10px;
+             padding:8px 0; border-top:1px solid var(--line); font-size:13px}
+  .hiddenrow button{background:transparent; border:1px solid var(--line); border-radius:5px;
+                    color:var(--brass); font-family:var(--mono); font-size:11px; padding:5px 9px; cursor:pointer}
+  .version{font-family:var(--mono); font-size:10.5px; color:var(--line); text-align:center; margin:18px 0}
   .why-halten{color:var(--brass)}
   .setcount{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:4px}
   .setcount button{background:transparent; border:1px solid var(--line); color:var(--steel);
@@ -180,18 +192,43 @@ var EX = [
   {id:"rudernR",  n:"Rudern einarmig", side:"rechts", w:"B",  sets:3, lo:8,  hi:12, url:V+"rudern-einarmig/",                     setup:"Griff, mittlere Höhe"},
   {id:"schulter", n:"Schulterdrücken",         w:"B",  sets:3, lo:8,  hi:12, url:V+"200-schulterdruecken-vor-dem-kopf/",         setup:"Griffstange, Schulterhöhe"},
   {id:"rdl",      n:"Rumänisches Kreuzheben",  w:"B",  sets:3, lo:8,  hi:12, url:V+"205-rumaenisches-kreuzheben/",               setup:"Griffstange, Horn tief", pm:1},
-  {id:"rev",      n:"Reverse Flys",            w:"B+", sets:2, lo:12, hi:18, url:V+"224-reverse-flys-vorgebeugt-mit-seilzug/",   setup:"Seilzug tief, vorgebeugt"},
-  {id:"lunge",    n:"Ausfallschritte", side:"links",  w:"B+", sets:2, lo:10, hi:12, url:V+"ausfallschritte/",                     setup:"Griffband, Horn tief, linkes Bein vorne", pm:1},
-  {id:"lungeR",   n:"Ausfallschritte", side:"rechts", w:"B+", sets:2, lo:10, hi:12, url:V+"ausfallschritte/",                     setup:"Griffband, Horn tief, rechtes Bein vorne", pm:1},
+  {id:"plank",    n:"Unterarmstütz",            w:"B+", sets:2, lo:20, hi:60, url:V+"unterarmstuetz-mit-griffband/", setup:"Griffband tief, Körper in einer Linie. Sekunden statt Wiederholungen", sek:1},
+  {id:"rudernob",  n:"Rudern Obergriff", side:"links",  w:"B+", sets:2, lo:12, hi:18, url:V+"einarmiges-rudern-mit-obergriff-am-seilzug/", setup:"Seilzug, Obergriff, Ellbogen weit – trifft die hintere Schulter"},
+  {id:"rudernobR", n:"Rudern Obergriff", side:"rechts", w:"B+", sets:2, lo:12, hi:18, url:V+"einarmiges-rudern-mit-obergriff-am-seilzug/", setup:"Seilzug, Obergriff, Ellbogen weit – trifft die hintere Schulter"},
 
   // C – andere Winkel, mehr Rumpf
-  {id:"rudern2",  n:"Rudern vorgebeugt",        w:"C",  sets:3, lo:8,  hi:12, url:V+"201-vorgebeugtes-rudern-mit-griffstange/",   setup:"Griffstange, Horn tief, Oberkörper vorgebeugt"},
-  {id:"brust2",   n:"Brustdrücken stehend",     w:"C",  sets:3, lo:8,  hi:12, url:V+"209-brustdruecken-stehend-mit-griffstange/", setup:"Griffstange, Horn auf Brusthöhe, Schrittstellung"},
+  {id:"rudernvb", n:"Rudern vorgebeugt",        w:"C",  sets:3, lo:8,  hi:12, url:V+"201-vorgebeugtes-rudern-mit-griffstange/",   setup:"Griffstange, Horn tief, Oberkörper vorgebeugt"},
+  {id:"bruststeh",n:"Brustdrücken stehend",     w:"C",  sets:3, lo:8,  hi:12, url:V+"209-brustdruecken-stehend-mit-griffstange/", setup:"Griffstange, Horn auf Brusthöhe, Schrittstellung"},
   {id:"front",    n:"Frontkniebeugen",          w:"C",  sets:3, lo:8,  hi:12, url:V+"202-frontkniebeugen/",                       setup:"Griffstange vor den Schultern, Ellbogen hoch", pm:1},
   {id:"bizeps",   n:"Bizepscurls",              w:"C+", sets:2, lo:10, hi:15, url:V+"bizepscurls/",                               setup:"Griffstange, Horn tief"},
-  {id:"trizeps",  n:"Trizepsdrücken",           w:"C+", sets:2, lo:10, hi:15, url:V+"trizepsdruecken-am-seilzug/",                setup:"Seilzug hoch"}
+  {id:"crunch",   n:"Crunches",                 w:"C+", sets:2, lo:12, hi:20, url:V+"crunches-mit-griffband/", setup:"Griffband hoch, Zug von oben, Bauch einrollen"},
+  {id:"trizeps",  n:"Trizepsdrücken",           w:"C+", sets:2, lo:10, hi:15, url:V+"trizepsdruecken-am-seilzug/",                setup:"Seilzug hoch"},
+
+  // X – freies Training zwischendurch, zählt nicht auf die Wochenrechnung
+  {id:"aussenrot",  n:"Aussenrotation",            w:"X", cat:"Nacken & Schultern", sets:2, lo:12, hi:20, url:V+"aussenrotation-mit-seilzug/",                        setup:"Seilzug auf Ellbogenhöhe, Oberarm bleibt am Körper"},
+  {id:"innenrot",   n:"Innenrotation",             w:"X", cat:"Nacken & Schultern", sets:2, lo:12, hi:20, url:V+"innenrotation-mit-seilzug/",             setup:"Seilzug auf Ellbogenhöhe, Oberarm bleibt am Körper"},
+  {id:"latzugein",  n:"Einarmiger Latzug",         w:"X", cat:"Nacken & Schultern", sets:2, lo:10, hi:15, url:V+"einarmiger-latzug-am-seilzug/",          setup:"Seilzug hoch, eine Hand"},
+
+  {id:"crossover",  n:"Crossover Crunch",          w:"X", cat:"Rumpf", sets:2, lo:10, hi:15, url:V+"crossover-crunch-am-seilzug/",    setup:"Seilzug hoch, kniend"},
+  {id:"russian",    n:"Russian Twist",             w:"X", cat:"Rumpf", sets:2, lo:10, hi:16, url:V+"russian-twist-am-seilzug/",       setup:"Seilzug in Brusthöhe, sitzend"},
+  {id:"seitcrunch", n:"Seitliche Crunches",        w:"X", cat:"Rumpf", sets:2, lo:10, hi:16, url:V+"seitliche-crunches-am-seilzug/",  setup:"Seilzug hoch, seitlich kniend"},
+
+  {id:"einbeinkb",  n:"Einbeinige Kniebeuge",      w:"X", cat:"Beine & Balance", sets:2, lo:8,  hi:12, url:V+"einbeinige-kniebeuge-mit-entlastung/", setup:"Griffstange zum Entlasten, pro Seite"},
+  {id:"einbeinkh",  n:"Einbeiniges Kreuzheben",    w:"X", cat:"Beine & Balance", sets:2, lo:8,  hi:12, url:V+"einbeiniges-kreuzheben-einarmig/",     setup:"Griff, Horn tief, pro Seite"},
+  {id:"lunge",      n:"Ausfallschritte", side:"links",  w:"X", cat:"Beine & Balance", sets:2, lo:10, hi:12, url:V+"ausfallschritte/", setup:"Griffband, Horn tief, linkes Bein vorne"},
+  {id:"lungeR",     n:"Ausfallschritte", side:"rechts", w:"X", cat:"Beine & Balance", sets:2, lo:10, hi:12, url:V+"ausfallschritte/", setup:"Griffband, Horn tief, rechtes Bein vorne"},
+  {id:"waden",      n:"Wadenheben",                w:"X", cat:"Beine & Balance", sets:2, lo:12, hi:20, url:V+"219-wadenheben-mit-griff-am-horn/",    setup:"Griff am Horn, Fußballen erhöht"},
+  {id:"beinbeuger", n:"Beinbeuger liegend",        w:"X", cat:"Beine & Balance", sets:2, lo:10, hi:15, url:V+"beinbeuger-liegend/",                  setup:"Griffband am Fußgelenk, Horn tief"},
+
+  {id:"mountain",   n:"Mountain Climbers",         w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:20, hi:45, url:V+"mountain-climbers/", setup:"Griffband, Stützposition", sek:1},
+  {id:"plankjacks", n:"Plank Jacks",               w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:20, hi:45, url:V+"plank-jacks/",       setup:"Griffband, Stützposition", sek:1},
+  {id:"farmers",    n:"Farmer\u0027s Walk",           w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:20, hi:45, url:V+"218-farmers-walk/",  setup:"Griff am Horn, aufrecht gehen", sek:1},
+  {id:"explosiv",   n:"Explosives Brustdrücken",   w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:10, hi:16, url:V+"213-explosives-brustdruecken-am-horn-alternierend/", setup:"Griff am Horn, alternierend, zügig drücken"}
 ];
 var PLANS = ["A","B","C"];
+var VERSION = "2026-08-06";
+var KATS = ["Nacken & Schultern","Rumpf","Beine & Balance","Kurz & schweißtreibend"];
+function sichtbar(e){ return hidden.indexOf(e.id) < 0; }
 function ex(id){ for(var i=0;i<EX.length;i++) if(EX[i].id===id) return EX[i]; return null; }
 
 /* ---------- Speicher ---------- */
@@ -199,9 +236,15 @@ var KEY = "eisenhorn.v1";
 var WKEY = "eisenhorn.weight.v1";
 var XKEY = "eisenhorn.lastexport.v1";
 var PKEY = "eisenhorn.pause.v1";
+var HKEY = "eisenhorn.hidden.v1";
+
+// Umbenannte IDs. Nur Übungen, die inhaltlich unverändert sind – der Verlauf wandert mit.
+// "rev"/"revR" fehlen hier bewusst: dort steckte früher eine andere Übung.
+var IDMAP = { rudern2:"rudernvb", brust2:"bruststeh" };
 var logs = [];
 var weights = [];
 var pausen = [];
+var hidden = [];
 function load(){
   try{
     var raw = localStorage.getItem(KEY);
@@ -218,12 +261,29 @@ function load(){
     pausen = rp ? JSON.parse(rp) : [];
     if(!Array.isArray(pausen)) pausen = [];
   }catch(e){ pausen = []; }
+  try{
+    var rh = localStorage.getItem(HKEY);
+    hidden = rh ? JSON.parse(rh) : [];
+    if(!Array.isArray(hidden)) hidden = [];
+  }catch(e){ hidden = []; }
+  migriere();
 }
+function migriere(){
+  var geaendert = false;
+  logs.forEach(function(l){ if(IDMAP[l.ex]){ l.ex = IDMAP[l.ex]; geaendert = true; } });
+  hidden = hidden.map(function(id){
+    if(IDMAP[id]){ geaendert = true; return IDMAP[id]; }
+    return id;
+  });
+  if(geaendert) persist();
+}
+
 function persist(){
   try{
     localStorage.setItem(KEY, JSON.stringify(logs));
     localStorage.setItem(WKEY, JSON.stringify(weights));
     localStorage.setItem(PKEY, JSON.stringify(pausen));
+    localStorage.setItem(HKEY, JSON.stringify(hidden));
     return true;
   }
   catch(e){ alert("Konnte nicht speichern. Ist der Speicher voll?"); return false; }
@@ -265,8 +325,27 @@ function rampSets(e){
   return e.sets;
 }
 
+// Mehrere Einträge desselben Tages mit gleicher Einstellung gehören zu einer Einheit.
+// Ohne das würde eine auf Morgen und Abend geteilte Einheit als zwei Einheiten
+// gewertet – und die zweite fast immer als Rückschritt.
+function proTag(all){
+  var out = [];
+  all.forEach(function(l){
+    var vor = out[out.length-1];
+    if(vor && new Date(vor.date).toDateString() === new Date(l.date).toDateString()
+           && vor.w === l.w && (vor.bar||1) === (l.bar||1)){
+      vor.reps = vor.reps.concat(l.reps);
+      vor.date = l.date;
+      vor.easy = vor.easy || l.easy;
+    }else{
+      out.push({ date:l.date, w:l.w, h:l.h, bar:l.bar, easy:l.easy, reps:l.reps.slice() });
+    }
+  });
+  return out;
+}
+
 function suggest(id){
-  var e = ex(id), all = allOf(id);
+  var e = ex(id), all = proTag(allOf(id));
   if(!all.length) return {w:null,h:null,bar:1,reps:e.lo,sets:rampSets(e),tone:"neu",
     why:"Erstes Mal. Widerstand so wählen, dass "+e.lo+" Wiederholungen fordernd sind."};
 
@@ -376,6 +455,8 @@ function weekStart(d){
 function trainingstage(von, bis){
   var tage = {};
   logs.forEach(function(l){
+    var e = ex(l.ex);
+    if(!e || e.w.charAt(0) === "X") return;      // freies Training zählt hier nicht mit
     var t = new Date(l.date);
     if(t >= von && t < bis) tage[t.toDateString()] = 1;
   });
@@ -496,7 +577,10 @@ function cardHTML(e){
     (fertig?' <span class="check">✓</span>':'')+
     (e.pm?' <span class="chip">abends</span>':'')+'</div>'+
     '<div class="setup">'+esc(e.setup)+'</div></div>'+
-    '<a class="vid" href="'+e.url+'" target="_blank" rel="noreferrer">Video</a></div>'+
+    '<div style="display:flex;gap:6px;flex-shrink:0">'+
+      '<a class="vid" href="'+e.url+'" target="_blank" rel="noreferrer">Video</a>'+
+      '<button class="vid hide" data-hide="'+e.id+'" title="Übung ausblenden">⊘</button>'+
+    '</div></div>'+
     '<div class="readout">'+
       '<div class="ro"><div class="lbl">Horn</div><div class="val">'+
         (s.h==null?'<span style="color:var(--steel)">—</span>':s.h)+'<span class="u">cm</span></div></div>'+
@@ -504,7 +588,7 @@ function cardHTML(e){
       '<div class="ro"><div class="lbl">Widerstand</div><div class="val" style="color:'+(s.w==null?'var(--steel)':'var(--brass)')+'">'+
         (s.w==null?'—':s.w)+'</div><div class="sub">'+(s.bar===2?'starke Stange':'leichte Stange')+'</div></div>'+
       '<div class="sep"></div>'+
-      '<div class="ro"><div class="lbl">Heute</div><div class="val">'+s.sets+'<span class="x">×</span>'+s.reps+'</div></div>'+
+      '<div class="ro"><div class="lbl">Heute</div><div class="val">'+s.sets+'<span class="x">×</span>'+s.reps+(e.sek?'<span class="u">s</span>':'')+'</div></div>'+
     '</div>';
   var wa = waermer(s);
   if(wa) h += '<div class="warm">Aufwärmen: W'+wa.w+' × '+wa.reps+', ruhig und ohne Anstrengung</div>';
@@ -520,7 +604,7 @@ function cardHTML(e){
     h += '<div class="form"><div class="row">'+
       '<div class="stp"><div class="lbl">Hornhöhe cm</div>'+heightField(d.h)+'</div>'+
       '<div class="stp"><div class="lbl">Widerstand</div>'+stepper("w",0,d.w,"")+'</div>'+
-      '</div><div class="hint">Geschaffte Wiederholungen</div>';
+      '</div><div class="hint">'+(e.sek?'Gehaltene Sekunden':'Geschaffte Wiederholungen')+'</div>';
     for(var i=0;i<d.reps.length;i++)
       h += '<div class="setline"><div class="n">Satz '+(i+1)+'</div><div style="flex:1">'+stepper("r",i,d.reps[i],"")+'</div></div>';
     h += '<div class="setcount">'+
@@ -560,6 +644,21 @@ function viewHeute(){
       '<button class="btn" data-pauseend="1">Pause beenden</button></div>';
   }
 
+  if(plan === "X"){
+    h += '<div class="frei"><b>Zwischendurch</b><span>Kein Pflichtprogramm, keine Rotation. '+
+      'Nimm dir ein bis zwei Übungen heraus – Einstellung, Vorschlag und Verlauf laufen genauso mit wie im Hauptplan. '+
+      'Diese Einheiten zählen bewusst nicht auf deine drei Wochentrainings, damit die Zahl ehrlich bleibt.</span></div>';
+    KATS.forEach(function(k){
+      var liste = EX.filter(function(e){ return e.w==="X" && e.cat===k && sichtbar(e); });
+      if(!liste.length) return;
+      h += '<div class="kat">'+k+'</div>';
+      liste.forEach(function(e){ h += cardHTML(e); });
+    });
+    h += '<div style="height:11px"></div>'+
+         '<button class="dash" data-plan="'+due()+'">Zurück zum Wochenplan</button>';
+    return h;
+  }
+
   var d = due();
   h += '<div class="plans">';
   PLANS.forEach(function(p){
@@ -570,7 +669,7 @@ function viewHeute(){
   });
   h += '</div>';
 
-  var core = EX.filter(function(e){ return e.w===plan; });
+  var core = EX.filter(function(e){ return e.w===plan && sichtbar(e); });
 
   var rw = rampWeek();
   if(rw <= 4 && !pz){
@@ -584,9 +683,12 @@ function viewHeute(){
 
   var fertig = core.filter(function(e){ return doneToday(e.id); }).length;
   var min = dauerMin(core);
+  var pct = core.length ? Math.round(fertig/core.length*100) : 0;
   h += '<div class="progress"><span>'+fertig+' von '+core.length+' heute erledigt</span>'+
-       '<span class="bar"><i style="width:'+Math.round(fertig/core.length*100)+'%"></i></span>'+
+       '<span class="bar"><i style="width:'+pct+'%"></i></span>'+
        '<span class="dauer">'+(min>0?'noch ~'+min+' min':'fertig')+'</span></div>';
+  if(!core.length)
+    h += '<p class="note" style="margin:0 2px 13px">In diesem Workout ist keine Übung sichtbar. Unter Mehr kannst du ausgeblendete Übungen zurückholen.</p>';
 
   var lw = weights.length ? new Date(weights[weights.length-1].date) : null;
   var lwTage = lw ? Math.floor((Date.now()-lw.getTime())/86400000) : -1;
@@ -599,8 +701,10 @@ function viewHeute(){
   h += '<button class="dash" data-extra="1">'+(showExtra?"Zusatz ausblenden":"Zusatz, wenn Zeit ist")+'</button>';
   if(showExtra){
     h += '<div style="height:11px"></div>';
-    EX.filter(function(e){ return e.w===plan+"+"; }).forEach(function(e){ h += cardHTML(e); });
+    EX.filter(function(e){ return e.w===plan+"+" && sichtbar(e); }).forEach(function(e){ h += cardHTML(e); });
   }
+  h += '<div style="height:11px"></div>'+
+       '<button class="dash" data-plan="X">Zwischendurch trainieren · freie Übungen</button>';
   return h;
 }
 
@@ -647,14 +751,17 @@ function viewVerlauf(){
   if(!ids.length) return h+'<div class="empty">Noch keine Übung eingetragen.<br>Nach der ersten Einheit steht hier deine Steigerung.</div>';
   ids.forEach(function(id){
     var e = ex(id);
-    if(!e) return;
     var all = [];
     logs.forEach(function(l,i){ if(l.ex===id) all.push({l:l, i:i}); });
     var rows = all.slice(-12).reverse(), diff = rows[0].l.w - all[0].l.w;
     h += '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center">'+
-      '<div class="name">'+esc(e.n)+(e.side?' <span class="chip side">'+e.side+'</span>':'')+'</div>'+
+      '<div class="name">'+(e
+        ? esc(e.n)+(e.side?' <span class="chip side">'+e.side+'</span>':'')
+        : 'Nicht mehr im Plan <span class="chip">'+esc(id)+'</span>')+'</div>'+
       '<div style="font-family:var(--mono);font-size:12px;color:'+(diff>0?"var(--ok)":"var(--steel)")+'">'+
-      (diff>0?"+"+diff:diff===0?"\u00b10":diff)+' seit Start</div></div><div style="margin-top:11px">';
+      (diff>0?"+"+diff:diff===0?"\u00b10":diff)+' seit Start</div></div>'+
+      (e?'':'<p class="note">Diese \u00dcbung steht nicht mehr im Plan. Die Eintr\u00e4ge bleiben sichtbar, bis du sie l\u00f6schst.</p>')+
+      '<div style="margin-top:11px">';
     rows.forEach(function(row,i){
       var r = row.l;
       h += '<div class="hrow'+(i===0?" now":"")+'"><span style="width:46px">'+fmt(r.date)+'</span>'+
@@ -731,12 +838,24 @@ function viewMehr(){
     '<li>Zwei Übungen morgens und zwei abends sind nicht weniger wert als vier am Stück.</li>'+
   '</ul></div>'+
 
+  (hidden.length
+    ? '<div class="card"><div class="name">Ausgeblendete Übungen</div>'+
+      '<p class="note">Diese Übungen tauchen nirgends mehr auf. Der Verlauf dazu bleibt erhalten.</p>'+
+      hidden.map(function(id){
+        var eh = ex(id);
+        return '<div class="hiddenrow"><span>'+(eh?esc(eh.n)+(eh.side?" "+eh.side:""):id)+'</span>'+
+               '<button data-show="'+id+'">einblenden</button></div>';
+      }).join('')+'</div>'
+    : '')+
+
   '<div class="card"><div class="name">Sicherung</div>'+
     '<p class="note" style="margin-top:8px;color:'+(backupAlt()>30||backupAlt()<0?'var(--brass)':'var(--steel)')+'">Letzte Sicherung: '+backupText()+'</p>'+
     '<p class="note">'+logs.length+' Trainingseinträge und '+weights.length+' Gewichtswerte liegen lokal auf diesem Gerät und gehen nie an einen Server. '+
     'Genau deshalb solltest du sie ab und zu exportieren.</p>'+
     '<button class="btn brass" data-export="1">Exportieren</button>'+
     '<button class="btn ghost" data-import="1">Sicherung einlesen</button></div>'+
+
+  '<p class="version">Eisenhorn · Stand '+VERSION+'</p>'+
 
   '<div class="card"><div class="name">Zurücksetzen</div>'+
     '<p class="note">Löscht alle Einträge auf diesem Gerät. Vorher exportieren.</p>'+
@@ -755,7 +874,7 @@ function render(){
 
 /* ---------- Interaktion ---------- */
 document.addEventListener("click", function(evt){
-  var t = evt.target.closest ? evt.target.closest("[data-tab],[data-plan],[data-open],[data-cancel],[data-save],[data-step],[data-sets],[data-del],[data-pause],[data-pauseend],[data-bar],[data-easy],[data-extra],[data-export],[data-import],[data-reset],[data-wopen],[data-wcancel],[data-wsave]") : null;
+  var t = evt.target.closest ? evt.target.closest("[data-tab],[data-plan],[data-open],[data-cancel],[data-save],[data-step],[data-sets],[data-del],[data-hide],[data-show],[data-pause],[data-pauseend],[data-bar],[data-easy],[data-extra],[data-export],[data-import],[data-reset],[data-wopen],[data-wcancel],[data-wsave]") : null;
   if(!t) return;
   var ds = t.dataset;
 
@@ -786,6 +905,19 @@ document.addEventListener("click", function(evt){
   if(ds.cancel){ openId = null; return render(); }
   if(ds.bar){ draft.bar = parseInt(ds.bar,10); return render(); }
   if(ds.easy){ draft.easy = !draft.easy; return render(); }
+
+  if(ds.hide){
+    var eh = ex(ds.hide);
+    if(eh && confirm("„"+eh.n+"“ ausblenden? Unter Mehr kannst du sie jederzeit zurückholen.")){
+      hidden.push(ds.hide); persist(); render();
+    }
+    return;
+  }
+  if(ds.show){
+    var ix = hidden.indexOf(ds.show);
+    if(ix >= 0){ hidden.splice(ix,1); persist(); render(); }
+    return;
+  }
 
   if(ds.pause){
     if(!aktivePause()){
@@ -836,7 +968,7 @@ document.addEventListener("click", function(evt){
   }
 
   if(ds.export){
-    var payload = { version:3, exported:new Date().toISOString(), logs:logs, weights:weights, pausen:pausen };
+    var payload = { version:3, exported:new Date().toISOString(), logs:logs, weights:weights, pausen:pausen, hidden:hidden };
     var blob = new Blob([JSON.stringify(payload,null,1)], {type:"application/json"});
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -879,6 +1011,7 @@ document.getElementById("file").addEventListener("change", function(e){
         logs = d.logs;
         weights = Array.isArray(d.weights) ? d.weights : [];
         pausen = Array.isArray(d.pausen) ? d.pausen : [];
+        hidden = Array.isArray(d.hidden) ? d.hidden : [];
       }else throw new Error("Format");
       persist(); render();
       alert(logs.length + " Trainingseinträge und " + weights.length + " Gewichtswerte eingelesen.");
