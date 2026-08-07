@@ -98,9 +98,10 @@
   .rules li{margin-bottom:7px}
   .rules li:last-child{margin-bottom:0}
   .rules b{color:var(--bone); font-weight:600}
+  .chips{display:flex; flex-wrap:wrap; gap:5px; margin-top:6px}
   .chip{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
         color:var(--steel); border:1px solid var(--line); border-radius:4px; padding:2px 5px;
-        margin-left:4px; vertical-align:middle}
+        white-space:nowrap; vertical-align:middle}
   .ramp{border:1px solid var(--brass); border-radius:10px; padding:12px 14px; margin:0 0 13px;
         background:rgba(203,163,60,.07)}
   .ramp b{display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.13em;
@@ -191,54 +192,74 @@
 /* ---------- Übungen ---------- */
 var V = "https://eisenhorn.com/de-de/training/kraftuebungen/";
 var EX = [
-  // A – Grundvarianten
-  {id:"lat",      n:"Latzug zur Brust",         w:"A",  sets:3, lo:8,  hi:12, url:V+"latzug-zur-brust/",                          setup:"Griffstange, Horn hoch"},
-  {id:"bank",     n:"Bodendrücken",             w:"A",  sets:3, lo:8,  hi:12, url:V+"229-bankdruecken-mit-griffstange/",          setup:"Griffstange, Rücken am Boden, Ellbogen setzen unten auf"},
-  {id:"knie",     n:"Kniebeugen",               w:"A",  sets:3, lo:8,  hi:12, url:V+"203-kniebeugen/",                            setup:"Griffstange auf den Schultern", pm:1},
-  {id:"face",     n:"Facepulls",                w:"A+", sets:2, lo:12, hi:18, url:V+"facepulls-am-seilzug/",                      setup:"Seilzug in Kopfhöhe"},
-  {id:"rot",      n:"Rumpfrotation", side:"links",  w:"A+", sets:2, lo:10, hi:15, url:V+"rumpfrotation-am-seilzug/",              setup:"Seilzug in Brusthöhe, Zug von rechts"},
-  {id:"rotR",     n:"Rumpfrotation", side:"rechts", w:"A+", sets:2, lo:10, hi:15, url:V+"rumpfrotation-am-seilzug/",              setup:"Seilzug in Brusthöhe, Zug von links"},
+  // zwei:1 bedeutet: wird pro Seite ausgeführt. Die App erzeugt daraus automatisch
+  // zwei Karten, links und rechts, mit getrennter Progression.
 
-  // B – Zug horizontal, Druck über Kopf, Hüfte
-  {id:"rudern",   n:"Rudern einarmig", side:"links",  w:"B",  sets:3, lo:8,  hi:12, url:V+"rudern-einarmig/",                     setup:"Griff, mittlere Höhe"},
-  {id:"rudernR",  n:"Rudern einarmig", side:"rechts", w:"B",  sets:3, lo:8,  hi:12, url:V+"rudern-einarmig/",                     setup:"Griff, mittlere Höhe"},
-  {id:"schulter", n:"Schulterdrücken",         w:"B",  sets:3, lo:8,  hi:12, url:V+"200-schulterdruecken-vor-dem-kopf/",         setup:"Griffstange, Schulterhöhe"},
-  {id:"rdl",      n:"Rumänisches Kreuzheben",  w:"B",  sets:3, lo:8,  hi:12, url:V+"205-rumaenisches-kreuzheben/",               setup:"Griffstange, Horn tief", pm:1},
-  {id:"plank",    n:"Unterarmstütz",            w:"B+", sets:2, lo:20, hi:60, url:V+"unterarmstuetz-mit-griffband/", setup:"Griffband tief, Körper in einer Linie. Sekunden statt Wiederholungen", sek:1},
-  {id:"rudernob",  n:"Rudern Obergriff", side:"links",  w:"B+", sets:2, lo:12, hi:18, url:V+"einarmiges-rudern-mit-obergriff-am-seilzug/", setup:"Seilzug, Obergriff, Ellbogen weit – trifft die hintere Schulter"},
-  {id:"rudernobR", n:"Rudern Obergriff", side:"rechts", w:"B+", sets:2, lo:12, hi:18, url:V+"einarmiges-rudern-mit-obergriff-am-seilzug/", setup:"Seilzug, Obergriff, Ellbogen weit – trifft die hintere Schulter"},
+  // A
+  {id:"lat",      n:"Latzug zur Brust",        w:"A",  sets:3, lo:8,  hi:12, url:V+"latzug-zur-brust/",                    setup:"Griffstange, Horn hoch"},
+  {id:"bank",     n:"Bodendrücken",            w:"A",  sets:3, lo:8,  hi:12, url:V+"229-bankdruecken-mit-griffstange/",    setup:"Griffstange, Rücken am Boden, Ellbogen setzen unten auf"},
+  {id:"knie",     n:"Kniebeugen",              w:"A",  sets:3, lo:8,  hi:12, url:V+"203-kniebeugen/",                      setup:"Griffstange auf den Schultern", pm:1},
+  {id:"face",     n:"Facepulls",               w:"A+", sets:2, lo:12, hi:18, url:V+"facepulls-am-seilzug/",                setup:"Seilzug in Kopfhöhe, beide Hände"},
+  {id:"rot",      n:"Rumpfrotation",           w:"A+", sets:2, lo:10, hi:15, url:V+"rumpfrotation-am-seilzug/",            setup:"Seilzug in Brusthöhe", setupL:"Seilzug in Brusthöhe, Zug von rechts", setupR:"Seilzug in Brusthöhe, Zug von links", zwei:1},
 
-  // C – andere Winkel, mehr Rumpf
-  {id:"rudernvb", n:"Rudern vorgebeugt",        w:"C",  sets:3, lo:8,  hi:12, url:V+"201-vorgebeugtes-rudern-mit-griffstange/",   setup:"Griffstange, Horn tief, Oberkörper vorgebeugt"},
-  {id:"bruststeh",n:"Brustdrücken stehend",     w:"C",  sets:3, lo:8,  hi:12, url:V+"209-brustdruecken-stehend-mit-griffstange/", setup:"Griffstange, Horn auf Brusthöhe, Schrittstellung"},
-  {id:"kreuz",    n:"Kreuzheben",               w:"C",  sets:3, lo:6,  hi:10, url:V+"kreuzheben-mit-griffstange-deadlift/",       setup:"Griffstange auf Schienbeinhöhe, breiter Wechselgriff, Rücken unter Spannung", pm:1},
-  {id:"bizeps",   n:"Bizepscurls",              w:"C+", sets:2, lo:10, hi:15, url:V+"bizepscurls/",                               setup:"Griffstange, Horn tief"},
-  {id:"crunch",   n:"Crunches",                 w:"C+", sets:2, lo:12, hi:20, url:V+"crunches-mit-griffband/", setup:"Griffband hoch, Zug von oben, Bauch einrollen"},
-  {id:"trizeps",  n:"Trizepsdrücken",           w:"C+", sets:2, lo:10, hi:15, url:V+"trizepsdruecken-am-seilzug/",                setup:"Seilzug hoch"},
+  // B
+  {id:"rudern",   n:"Rudern einarmig",         w:"B",  sets:3, lo:8,  hi:12, url:V+"rudern-einarmig/",                     setup:"Griff, mittlere Höhe", zwei:1},
+  {id:"schulter", n:"Schulterdrücken",         w:"B",  sets:3, lo:8,  hi:12, url:V+"200-schulterdruecken-vor-dem-kopf/",   setup:"Griffstange, Schulterhöhe"},
+  {id:"rdl",      n:"Rumänisches Kreuzheben",  w:"B",  sets:3, lo:8,  hi:12, url:V+"205-rumaenisches-kreuzheben/",         setup:"Griffstange, Horn tief", pm:1},
+  {id:"plank",    n:"Unterarmstütz",           w:"B+", sets:2, lo:20, hi:60, url:V+"unterarmstuetz-mit-griffband/",        setup:"Griffband tief, Körper in einer Linie. Sekunden statt Wiederholungen", sek:1},
+  {id:"rudernob", n:"Rudern Obergriff",        w:"B+", sets:2, lo:12, hi:18, url:V+"einarmiges-rudern-mit-obergriff-am-seilzug/", setup:"Seilzug, Obergriff, Ellbogen weit – trifft die hintere Schulter", zwei:1},
+
+  // C
+  {id:"rudernvb", n:"Rudern vorgebeugt",       w:"C",  sets:3, lo:8,  hi:12, url:V+"201-vorgebeugtes-rudern-mit-griffstange/",   setup:"Griffstange, Horn tief, Oberkörper vorgebeugt"},
+  {id:"bruststeh",n:"Brustdrücken stehend",    w:"C",  sets:3, lo:8,  hi:12, url:V+"209-brustdruecken-stehend-mit-griffstange/", setup:"Griffstange, Horn auf Brusthöhe, Schrittstellung"},
+  {id:"kreuz",    n:"Kreuzheben",              w:"C",  sets:3, lo:6,  hi:10, url:V+"kreuzheben-mit-griffstange-deadlift/", setup:"Griffstange auf Schienbeinhöhe, breiter Wechselgriff, Rücken unter Spannung", pm:1},
+  {id:"bizeps",   n:"Bizepscurls",             w:"C+", sets:2, lo:10, hi:15, url:V+"bizepscurls/",                         setup:"Griffstange, Horn tief"},
+  {id:"crunch",   n:"Crunches",                w:"C+", sets:2, lo:12, hi:20, url:V+"crunches-mit-griffband/",              setup:"Griffband hoch, Zug von oben, Bauch einrollen"},
+  {id:"trizeps",  n:"Trizepsdrücken",          w:"C+", sets:2, lo:10, hi:15, url:V+"trizepsdruecken-am-seilzug/",          setup:"Seilzug hoch, beide Hände"},
 
   // X – freies Training zwischendurch, zählt nicht auf die Wochenrechnung
-  {id:"aussenrot",  n:"Aussenrotation",            w:"X", cat:"Nacken & Schultern", sets:2, lo:12, hi:20, url:V+"aussenrotation-mit-seilzug/",                        setup:"Seilzug auf Ellbogenhöhe, Oberarm bleibt am Körper"},
-  {id:"innenrot",   n:"Innenrotation",             w:"X", cat:"Nacken & Schultern", sets:2, lo:12, hi:20, url:V+"innenrotation-mit-seilzug/",             setup:"Seilzug auf Ellbogenhöhe, Oberarm bleibt am Körper"},
-  {id:"latzugein",  n:"Einarmiger Latzug",         w:"X", cat:"Nacken & Schultern", sets:2, lo:10, hi:15, url:V+"einarmiger-latzug-am-seilzug/",          setup:"Seilzug hoch, eine Hand"},
+  {id:"aussenrot",  n:"Aussenrotation",          w:"X", cat:"Nacken & Schultern", sets:2, lo:12, hi:20, url:V+"aussenrotation-mit-seilzug/",  setup:"Seilzug auf Ellbogenhöhe, Oberarm bleibt am Körper", zwei:1},
+  {id:"innenrot",   n:"Innenrotation",           w:"X", cat:"Nacken & Schultern", sets:2, lo:12, hi:20, url:V+"innenrotation-mit-seilzug/",   setup:"Seilzug auf Ellbogenhöhe, Oberarm bleibt am Körper", zwei:1},
+  {id:"latzugein",  n:"Einarmiger Latzug",       w:"X", cat:"Nacken & Schultern", sets:2, lo:10, hi:15, url:V+"einarmiger-latzug-am-seilzug/",setup:"Seilzug hoch, eine Hand", zwei:1},
 
-  {id:"crossover",  n:"Crossover Crunch",          w:"X", cat:"Rumpf", sets:2, lo:10, hi:15, url:V+"crossover-crunch-am-seilzug/",    setup:"Seilzug hoch, kniend"},
-  {id:"russian",    n:"Russian Twist",             w:"X", cat:"Rumpf", sets:2, lo:10, hi:16, url:V+"russian-twist-am-seilzug/",       setup:"Seilzug in Brusthöhe, sitzend"},
-  {id:"seitcrunch", n:"Seitliche Crunches",        w:"X", cat:"Rumpf", sets:2, lo:10, hi:16, url:V+"seitliche-crunches-am-seilzug/",  setup:"Seilzug hoch, seitlich kniend"},
+  {id:"crossover",  n:"Crossover Crunch",        w:"X", cat:"Rumpf", sets:2, lo:10, hi:15, url:V+"crossover-crunch-am-seilzug/",   setup:"Seilzug hoch, kniend, diagonal nach unten ziehen", zwei:1},
+  {id:"russian",    n:"Russian Twist",           w:"X", cat:"Rumpf", sets:2, lo:10, hi:16, url:V+"russian-twist-am-seilzug/",      setup:"Seilzug in Brusthöhe, sitzend", setupL:"Seilzug in Brusthöhe, sitzend, Zug von rechts", setupR:"Seilzug in Brusthöhe, sitzend, Zug von links", zwei:1},
+  {id:"seitcrunch", n:"Seitliche Crunches",      w:"X", cat:"Rumpf", sets:2, lo:10, hi:16, url:V+"seitliche-crunches-am-seilzug/", setup:"Seilzug hoch, seitlich kniend", zwei:1},
 
-  {id:"front",      n:"Frontkniebeugen",           w:"X", cat:"Beine & Balance", sets:2, lo:8, hi:12, url:V+"202-frontkniebeugen/", setup:"Griffstange vor den Schultern, Ellbogen hoch"},
-  {id:"sumo",       n:"Sumo-Kreuzheben",           w:"X", cat:"Beine & Balance", sets:2, lo:8, hi:12, url:V+"sumo-kreuzheben-deadlifts-mit-griffstange/", setup:"Breiter Stand, enger Obergriff – schont den unteren Rücken"},
-  {id:"einbeinkb",  n:"Einbeinige Kniebeuge",      w:"X", cat:"Beine & Balance", sets:2, lo:8,  hi:12, url:V+"einbeinige-kniebeuge-mit-entlastung/", setup:"Griffstange zum Entlasten, pro Seite"},
-  {id:"einbeinkh",  n:"Einbeiniges Kreuzheben",    w:"X", cat:"Beine & Balance", sets:2, lo:8,  hi:12, url:V+"einbeiniges-kreuzheben-einarmig/",     setup:"Griff, Horn tief, pro Seite"},
-  {id:"lunge",      n:"Ausfallschritte", side:"links",  w:"X", cat:"Beine & Balance", sets:2, lo:10, hi:12, url:V+"ausfallschritte/", setup:"Griffband, Horn tief, linkes Bein vorne"},
-  {id:"lungeR",     n:"Ausfallschritte", side:"rechts", w:"X", cat:"Beine & Balance", sets:2, lo:10, hi:12, url:V+"ausfallschritte/", setup:"Griffband, Horn tief, rechtes Bein vorne"},
-  {id:"waden",      n:"Wadenheben",                w:"X", cat:"Beine & Balance", sets:2, lo:12, hi:20, url:V+"219-wadenheben-mit-griff-am-horn/",    setup:"Griff am Horn, Fußballen erhöht"},
-  {id:"beinbeuger", n:"Beinbeuger liegend",        w:"X", cat:"Beine & Balance", sets:2, lo:10, hi:15, url:V+"beinbeuger-liegend/",                  setup:"Griffband am Fußgelenk, Horn tief"},
+  {id:"front",      n:"Frontkniebeugen",         w:"X", cat:"Beine & Balance", sets:2, lo:8,  hi:12, url:V+"202-frontkniebeugen/",                setup:"Griffstange vor den Schultern, Ellbogen hoch"},
+  {id:"sumo",       n:"Sumo-Kreuzheben",         w:"X", cat:"Beine & Balance", sets:2, lo:8,  hi:12, url:V+"sumo-kreuzheben-deadlifts-mit-griffstange/", setup:"Breiter Stand, enger Obergriff – schont den unteren Rücken"},
+  {id:"einbeinkb",  n:"Einbeinige Kniebeuge",    w:"X", cat:"Beine & Balance", sets:2, lo:8,  hi:12, url:V+"einbeinige-kniebeuge-mit-entlastung/", setup:"Griffstange zum Entlasten", setupL:"Griffstange zum Entlasten, linkes Bein steht", setupR:"Griffstange zum Entlasten, rechtes Bein steht", zwei:1},
+  {id:"einbeinkh",  n:"Einbeiniges Kreuzheben",  w:"X", cat:"Beine & Balance", sets:2, lo:8,  hi:12, url:V+"einbeiniges-kreuzheben-einarmig/",     setup:"Griff, Horn tief", setupL:"Griff, Horn tief, linkes Bein steht", setupR:"Griff, Horn tief, rechtes Bein steht", zwei:1},
+  {id:"lunge",      n:"Ausfallschritte",         w:"X", cat:"Beine & Balance", sets:2, lo:10, hi:12, url:V+"ausfallschritte/",                    setup:"Griffband, Horn tief", setupL:"Griffband, Horn tief, linkes Bein vorne", setupR:"Griffband, Horn tief, rechtes Bein vorne", zwei:1},
+  {id:"waden",      n:"Wadenheben",              w:"X", cat:"Beine & Balance", sets:2, lo:12, hi:20, url:V+"219-wadenheben-mit-griff-am-horn/",    setup:"Griff am Horn, Fußballen erhöht, beide Beine"},
+  {id:"beinbeuger", n:"Beinbeuger liegend",      w:"X", cat:"Beine & Balance", sets:2, lo:10, hi:15, url:V+"beinbeuger-liegend/",                  setup:"Griffband am Fußgelenk, Horn tief", zwei:1},
 
-  {id:"mountain",   n:"Mountain Climbers",         w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:20, hi:45, url:V+"mountain-climbers/", setup:"Griffband, Stützposition", sek:1},
-  {id:"plankjacks", n:"Plank Jacks",               w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:20, hi:45, url:V+"plank-jacks/",       setup:"Griffband, Stützposition", sek:1},
-  {id:"farmers",    n:"Farmer\u0027s Walk",           w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:20, hi:45, url:V+"218-farmers-walk/",  setup:"Griff am Horn, aufrecht gehen", sek:1},
-  {id:"explosiv",   n:"Explosives Brustdrücken",   w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:10, hi:16, url:V+"213-explosives-brustdruecken-am-horn-alternierend/", setup:"Griff am Horn, alternierend, zügig drücken"}
+  {id:"mountain",   n:"Mountain Climbers",       w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:20, hi:45, url:V+"mountain-climbers/", setup:"Griffband, Stützposition, Beine wechseln sich ab", sek:1},
+  {id:"plankjacks", n:"Plank Jacks",             w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:20, hi:45, url:V+"plank-jacks/",       setup:"Griffband, Stützposition", sek:1},
+  {id:"explosiv",   n:"Explosives Brustdrücken", w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:10, hi:16, url:V+"213-explosives-brustdruecken-am-horn-alternierend/", setup:"Griff am Horn, Arme wechseln sich ab, zügig drücken"}
 ];
+
+// Einseitige Übungen zu je zwei Karten aufklappen. Die linke behält die
+// ursprüngliche Kennung, die rechte bekommt ein R angehängt.
+EX = (function(liste){
+  var out = [];
+  for(var i=0;i<liste.length;i++){
+    var e = liste[i];
+    if(!e.zwei){ out.push(e); continue; }
+    ["links","rechts"].forEach(function(seite){
+      var k = {};
+      for(var f in e) if(e.hasOwnProperty(f)) k[f] = e[f];
+      k.side = seite;
+      if(seite === "rechts") k.id = e.id + "R";
+      if(seite === "links"  && e.setupL) k.setup = e.setupL;
+      if(seite === "rechts" && e.setupR) k.setup = e.setupR;
+      delete k.setupL; delete k.setupR; delete k.zwei;
+      out.push(k);
+    });
+  }
+  return out;
+})(EX);
+
 var PLANS = ["A","B","C"];
 var VERSION = "2026-08-06";
 var KATS = ["Nacken & Schultern","Rumpf","Beine & Balance","Kurz & schweißtreibend"];
@@ -628,11 +649,15 @@ function cardHTML(e){
   var s = suggest(e.id), last = lastOf(e.id), open = openId===e.id, fertig = doneToday(e.id);
   var hist = allOf(e.id).slice(-8).map(function(l){ return l.w; });
   var h = '<div class="card'+(saved[e.id]?" saved":"")+(fertig&&!open?" done":"")+'" data-card="'+e.id+'">'+
-    '<div class="ctop"><div><div class="name">'+esc(e.n)+
-    (e.side?' <span class="chip side">'+e.side+'</span>':'')+
-    (fertig?' <span class="check">✓</span>':'')+
-    (e.pm?' <span class="chip">abends</span>':'')+
-    (e.cat?' <span class="chip">'+esc(e.cat)+'</span>':'')+'</div>'+
+    '<div class="ctop"><div style="min-width:0"><div class="name">'+esc(e.n)+
+      (fertig?' <span class="check">✓</span>':'')+'</div>'+
+    ((e.side||e.pm||e.cat)
+      ? '<div class="chips">'+
+          (e.side?'<span class="chip side">'+e.side+'</span>':'')+
+          (e.pm?'<span class="chip">abends</span>':'')+
+          (e.cat?'<span class="chip">'+esc(e.cat)+'</span>':'')+
+        '</div>'
+      : '')+
     '<div class="setup">'+esc(e.setup)+'</div></div>'+
     '<div style="display:flex;gap:6px;flex-shrink:0">'+
       '<a class="vid" href="'+e.url+'" target="_blank" rel="noreferrer">Video</a>'+
