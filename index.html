@@ -13,7 +13,7 @@
 <style>
   :root{
     --ground:#15191D; --panel:#1F272D; --raise:#2A343C; --line:#3B4750;
-    --bone:#EFECE5; --steel:#8494A0; --brass:#CBA33C; --ok:#5FA98C;
+    --bone:#EFECE5; --steel:#8494A0; --brass:#CBA33C; --ok:#5FA98C; --stark:#E0764A;
     --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
@@ -108,7 +108,12 @@
           text-transform:uppercase; color:var(--brass); margin-bottom:6px}
   .ramp span{display:block; font-size:12.5px; color:var(--steel); line-height:1.55}
   .ramp .deal{margin-top:8px; padding-top:8px; border-top:1px solid var(--line); color:var(--bone)}
-  .ro .sub{font-family:var(--mono); font-size:9.5px; color:var(--steel); margin-top:2px}
+  .ro .sub{margin-top:4px}
+  .barchip{display:inline-block; font-family:var(--mono); font-size:9px; letter-spacing:.1em;
+           text-transform:uppercase; padding:2px 6px; border-radius:4px}
+  .barchip.l{border:1px solid var(--line); color:var(--steel)}
+  .barchip.s{background:var(--stark); border:1px solid var(--stark); color:var(--ground); font-weight:600}
+  .seg button.stark.on{border-color:var(--stark); color:var(--stark)}
   .seg{display:flex; gap:7px}
   .seg button{flex:1; padding:9px 0; border-radius:7px; border:1px solid var(--line);
               background:transparent; color:var(--steel); font-family:var(--mono); font-size:12.5px; cursor:pointer}
@@ -261,7 +266,28 @@ EX = (function(liste){
 })(EX);
 
 var PLANS = ["A","B","C"];
-var VERSION = "2026-08-06";
+var VERSION = "2026-08-19";
+var MAXW = 12;                 // das Horn hat 12 Widerstandsstufen
+var FKEY = "eisenhorn.faktor.v1";
+var faktor = 1.8;              // wie viel stärker die starke Stange ist, unter Mehr einstellbar
+
+// Gemeinsame Skala: alles in Einheiten der leichten Stange.
+// Nur so lassen sich Stufen über einen Stangenwechsel hinweg vergleichen.
+function eff(w, bar){ return (bar||1) === 2 ? w * faktor : w; }
+
+// Nächste Stufe. Ist die leichte Stange am Anschlag, wird auf die starke
+// gewechselt – auf die kleinste Stufe, die mehr Last ergibt als bisher.
+function steigern(w, bar, plus){
+  bar = bar || 1;
+  var neu = w + plus;
+  if(neu <= MAXW) return { w:neu, bar:bar };
+  if(bar === 1){
+    var n = Math.ceil(eff(w,1) / faktor);
+    while(eff(n,2) <= eff(w,1) && n < MAXW) n++;
+    return { w:Math.min(n, MAXW), bar:2, wechsel:true };
+  }
+  return { w:MAXW, bar:2, ende:true };
+}
 var KATS = ["Nacken & Schultern","Rumpf","Beine & Balance","Kurz & schweißtreibend"];
 function sichtbar(e){ return hidden.indexOf(e.id) < 0; }
 
@@ -326,6 +352,10 @@ function load(){
     ratings = rr ? JSON.parse(rr) : {};
     if(!ratings || typeof ratings !== "object") ratings = {};
   }catch(e){ ratings = {}; }
+  try{
+    var rf = parseFloat(localStorage.getItem(FKEY));
+    if(!isNaN(rf) && rf >= 1.1 && rf <= 4) faktor = rf;
+  }catch(e){}
   migriere();
 }
 function migriere(){
@@ -345,6 +375,7 @@ function persist(){
     localStorage.setItem(PKEY, JSON.stringify(pausen));
     localStorage.setItem(HKEY, JSON.stringify(hidden));
     localStorage.setItem(RKEY, JSON.stringify(ratings));
+    localStorage.setItem(FKEY, String(faktor));
     return true;
   }
   catch(e){ alert("Konnte nicht speichern. Ist der Speicher voll?"); return false; }
@@ -415,26 +446,48 @@ function suggest(id){
   var top = last.reps.every(function(r){ return r >= e.hi; });
   var reserve = last.reps.length > rampSets(e);   // mehr Sätze gemacht als vorgeschlagen
 
+  // Nach einem Stangenwechsel ist die erste Einheit eine Eichung.
+  // Dann höchstens eine Stufe, nie ein Doppelsprung.
+  var vorher = all.length > 1 ? all[all.length-2] : null;
+  var frischGewechselt = !!(vorher && (vorher.bar||1) !== bar);
+
+  function hoch(plus, grund){
+    // Eine Stufe auf der starken Stange entspricht fast zwei auf der leichten.
+    // Deshalb dort nie zwei Stufen auf einmal.
+    if(bar === 2 && plus > 1){
+      plus = 1;
+      grund = "Eine Stufe hoch. Auf der starken Stange ist ein Doppelsprung zu viel – eine Stufe hier entspricht fast zwei auf der leichten.";
+    }
+    if(frischGewechselt && plus > 1){
+      plus = 1;
+      grund = "Erste Einheit nach dem Stangenwechsel. Nur eine Stufe – erst mal sauber einpendeln.";
+    }
+    var z = steigern(last.w, bar, plus);
+    if(z.ende)
+      return {w:MAXW,h:last.h,bar:2,reps:Math.min(Math.min.apply(null,last.reps)+1,e.hi),sets:rampSets(e),tone:"halten",
+        why:"Stufe "+MAXW+" auf der starken Stange ist das Maximum. Ab hier über Wiederholungen und sauberere Ausführung steigern."};
+    if(z.wechsel)
+      return {w:z.w,h:last.h,bar:2,reps:e.lo,sets:rampSets(e),tone:"hoch",
+        why:"Die leichte Stange ist bei "+MAXW+" am Anschlag. Wechsle auf die starke Stange, Stufe "+z.w+" – das ist etwas mehr Last als bisher."};
+    return {w:z.w,h:last.h,bar:z.bar,reps:e.lo,sets:rampSets(e),tone:"hoch",why:grund};
+  }
+
   // Wiedereinstieg nach längerer Unterbrechung
-  var weg = Math.floor((Date.now() - new Date(last.date).getTime())/86400000);
+  var weg = tagDiff(last.date);
   if(weg >= 10){
     var minus = weg >= 21 ? 2 : 1;
-    return {w:Math.max(0,last.w-minus),h:last.h,bar:bar,reps:e.lo,sets:rampSets(e),tone:"halten",
+    return {w:Math.max(1,last.w-minus),h:last.h,bar:bar,reps:e.lo,sets:rampSets(e),tone:"halten",
       why:weg+" Tage her. Steig "+minus+" Stufe"+(minus>1?"n":"")+" tiefer ein – Kraft kommt schneller zurück, als sie geht. In zwei Einheiten bist du wieder da."};
   }
 
   if(last.easy && top)
-    return {w:last.w+2,h:last.h,bar:bar,reps:e.lo,sets:rampSets(e),tone:"hoch",
-      why:"Als zu leicht markiert und alle Sätze auf "+e.hi+". Zwei Stufen hoch."};
+    return hoch(2, "Als zu leicht markiert und alle Sätze auf "+e.hi+". Zwei Stufen hoch.");
   if(last.easy)
-    return {w:last.w+1,h:last.h,bar:bar,reps:e.lo,sets:rampSets(e),tone:"hoch",
-      why:"Als zu leicht markiert. Eine Stufe hoch, Wiederholungen starten wieder unten."};
+    return hoch(1, "Als zu leicht markiert. Eine Stufe hoch, Wiederholungen starten wieder unten.");
   if(top && reserve)
-    return {w:last.w+2,h:last.h,bar:bar,reps:e.lo,sets:rampSets(e),tone:"hoch",
-      why:"Alle Sätze auf "+e.hi+", und du hattest noch Sätze übrig. Zwei Stufen hoch."};
+    return hoch(2, "Alle Sätze auf "+e.hi+", und du hattest noch Sätze übrig. Zwei Stufen hoch.");
   if(top)
-    return {w:last.w+1,h:last.h,bar:bar,reps:e.lo,sets:rampSets(e),tone:"hoch",
-      why:"Letztes Mal alle Sätze auf "+e.hi+". Widerstand eine Stufe hoch."};
+    return hoch(1, "Letztes Mal alle Sätze auf "+e.hi+". Widerstand eine Stufe hoch.");
 
   // Einheiten am Stück mit derselben Einstellung – Stufe und Stange
   var streak = [];
@@ -456,7 +509,7 @@ function suggest(id){
   }
 
   if(stalls >= 2)
-    return {w:Math.max(0,last.w-1),h:last.h,bar:bar,reps:e.lo,sets:rampSets(e),tone:"runter",
+    return {w:Math.max(1,last.w-1),h:last.h,bar:bar,reps:e.lo,sets:rampSets(e),tone:"runter",
       why:"Dreimal keine Steigerung. Eine Stufe zurück und sauber neu aufbauen – das ist kein Rückschritt, sondern Anlauf."};
 
   var min = Math.min.apply(null,last.reps);
@@ -555,7 +608,7 @@ function dauerMin(liste){
 
 function waermer(s){
   if(s.w == null) return null;
-  return { w: Math.max(1, Math.round(s.w/2)), reps: 10 };
+  return { w: Math.max(1, Math.min(MAXW, Math.round(s.w/2))), reps: 10 };
 }
 
 /* ---------- Körpergewicht ---------- */
@@ -647,7 +700,7 @@ function heightField(val){
 
 function cardHTML(e){
   var s = suggest(e.id), last = lastOf(e.id), open = openId===e.id, fertig = doneToday(e.id);
-  var hist = allOf(e.id).slice(-8).map(function(l){ return l.w; });
+  var hist = allOf(e.id).slice(-8).map(function(l){ return eff(l.w, l.bar); });
   var h = '<div class="card'+(saved[e.id]?" saved":"")+(fertig&&!open?" done":"")+'" data-card="'+e.id+'">'+
     '<div class="ctop"><div style="min-width:0"><div class="name">'+esc(e.n)+
       (fertig?' <span class="check">✓</span>':'')+'</div>'+
@@ -667,8 +720,10 @@ function cardHTML(e){
       '<div class="ro"><div class="lbl">Horn</div><div class="val">'+
         (s.h==null?'<span style="color:var(--steel)">—</span>':s.h)+'<span class="u">cm</span></div></div>'+
       '<div class="sep"></div>'+
-      '<div class="ro"><div class="lbl">Widerstand</div><div class="val" style="color:'+(s.w==null?'var(--steel)':'var(--brass)')+'">'+
-        (s.w==null?'—':s.w)+'</div><div class="sub">'+(s.bar===2?'starke Stange':'leichte Stange')+'</div></div>'+
+      '<div class="ro"><div class="lbl">Widerstand</div><div class="val" style="color:'+
+        (s.w==null?'var(--steel)':(s.bar===2?'var(--stark)':'var(--brass)'))+'">'+
+        (s.w==null?'—':s.w)+'</div>'+
+        '<div class="sub"><span class="barchip '+(s.bar===2?'s':'l')+'">'+(s.bar===2?'stark':'leicht')+'</span></div></div>'+
       '<div class="sep"></div>'+
       '<div class="ro"><div class="lbl">Heute</div><div class="val">'+s.sets+'<span class="x">×</span>'+s.reps+(e.sek?'<span class="u">s</span>':'')+'</div></div>'+
     '</div>';
@@ -676,7 +731,7 @@ function cardHTML(e){
   if(wa) h += '<div class="warm">Aufwärmen: W'+wa.w+' × '+wa.reps+', ruhig und ohne Anstrengung</div>';
   h += '<div class="why why-'+s.tone+'">'+esc(s.why)+'</div>';
 
-  if(last) h += '<div class="lastrow"><span>zuletzt '+fmt(last.date)+' · W'+last.w+((last.bar||1)===2?' stark':'')+' · '+last.reps.join("/")+'</span>'+spark(hist)+'</div>';
+  if(last) h += '<div class="lastrow"><span>zuletzt '+fmt(last.date)+' · <span style="color:'+((last.bar||1)===2?"var(--stark)":"var(--steel)")+'">W'+last.w+((last.bar||1)===2?' stark':'')+'</span> · '+last.reps.join("/")+'</span>'+spark(hist)+'</div>';
 
   if(e.w === "X"){
     var rv = ratings[e.id] || 0;
@@ -703,7 +758,7 @@ function cardHTML(e){
     h += '<div class="hint">Widerstandsstange</div>'+
       '<div class="seg">'+
         '<button class="'+(d.bar===1?"on":"")+'" data-bar="1">leicht</button>'+
-        '<button class="'+(d.bar===2?"on":"")+'" data-bar="2">stark</button>'+
+        '<button class="stark '+(d.bar===2?"on":"")+'" data-bar="2">stark</button>'+
       '</div>'+
       '<button class="toggle'+(d.easy?" on":"")+'" data-easy="1">'+
         (d.easy?'✓ ':'')+'War zu leicht – nächstes Mal deutlich höher</button>';
@@ -855,7 +910,8 @@ function viewVerlauf(){
     var e = ex(id);
     var all = [];
     logs.forEach(function(l,i){ if(l.ex===id) all.push({l:l, i:i}); });
-    var rows = all.slice(-12).reverse(), diff = rows[0].l.w - all[0].l.w;
+    var rows = all.slice(-12).reverse();
+    var diff = Math.round((eff(rows[0].l.w, rows[0].l.bar) - eff(all[0].l.w, all[0].l.bar))*10)/10;
     h += '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center">'+
       '<div class="name">'+(e
         ? esc(e.n)+(e.side?' <span class="chip side">'+e.side+'</span>':'')
@@ -868,7 +924,7 @@ function viewVerlauf(){
       var r = row.l;
       h += '<div class="hrow'+(i===0?" now":"")+'"><span style="width:46px">'+fmt(r.date)+'</span>'+
            '<span style="width:50px">'+r.h+' cm</span>'+
-           '<span style="width:50px;color:'+(i===0?"var(--brass)":"var(--steel)")+'">W'+r.w+((r.bar||1)===2?'\u00b7st':'')+'</span>'+
+           '<span style="width:50px;color:'+(i===0?"var(--brass)":"var(--steel)")+'" style="width:50px;color:'+((r.bar||1)===2?"var(--stark)":(i===0?"var(--brass)":"var(--steel)"))+'">W'+r.w+((r.bar||1)===2?' s':'')+'</span>'+
            '<span style="flex:1">'+r.reps.join(" / ")+'</span>'+
            '<button class="del" data-del="'+row.i+'">\u00d7</button></div>';
     });
@@ -950,6 +1006,19 @@ function viewMehr(){
       }).join('')+'</div>'
     : '')+
 
+  '<div class="card"><div class="name">Widerstandsstangen</div>'+
+    '<p class="note">Das Horn hat '+MAXW+' Stufen pro Stange. Damit die Kurve über einen Stangenwechsel hinweg stimmt, '+
+    'rechnet die App alles auf die leichte Stange um. Aktuell gilt die starke Stange als '+faktor.toFixed(1)+'-mal so stark – '+
+    'Stufe 7 stark entspricht also '+eff(7,2).toFixed(1)+' leicht.</p>'+
+    '<div class="row" style="margin-top:12px"><div class="stp"><div class="lbl">Faktor starke Stange</div>'+
+      '<div class="stepper">'+
+        '<button data-fak="-1">−</button>'+
+        '<div class="v">'+faktor.toFixed(1)+'</div>'+
+        '<button data-fak="1">+</button>'+
+      '</div></div></div>'+
+    '<p class="note">Stell ihn so ein, dass ein Wechsel sich wie eine kleine Steigerung anfühlt, nicht wie ein Sprung.</p>'+
+  '</div>'+
+
   '<div class="card"><div class="name">Sicherung</div>'+
     '<p class="note" style="margin-top:8px;color:'+(backupAlt()>30||backupAlt()<0?'var(--brass)':'var(--steel)')+'">Letzte Sicherung: '+backupText()+'</p>'+
     '<p class="note">'+logs.length+' Trainingseinträge und '+weights.length+' Gewichtswerte liegen lokal auf diesem Gerät und gehen nie an einen Server. '+
@@ -976,7 +1045,7 @@ function render(){
 
 /* ---------- Interaktion ---------- */
 document.addEventListener("click", function(evt){
-  var t = evt.target.closest ? evt.target.closest("[data-tab],[data-plan],[data-open],[data-cancel],[data-save],[data-step],[data-sets],[data-del],[data-hide],[data-show],[data-rate],[data-pause],[data-pauseend],[data-bar],[data-easy],[data-extra],[data-export],[data-import],[data-reset],[data-wopen],[data-wcancel],[data-wsave]") : null;
+  var t = evt.target.closest ? evt.target.closest("[data-tab],[data-plan],[data-open],[data-cancel],[data-save],[data-step],[data-sets],[data-del],[data-fak],[data-hide],[data-show],[data-rate],[data-pause],[data-pauseend],[data-bar],[data-easy],[data-extra],[data-export],[data-import],[data-reset],[data-wopen],[data-wcancel],[data-wsave]") : null;
   if(!t) return;
   var ds = t.dataset;
 
@@ -996,7 +1065,7 @@ document.addEventListener("click", function(evt){
 
   if(ds.open){
     var s = suggest(ds.open);
-    draft = { h: s.h==null?100:s.h, w: s.w==null?10:s.w, bar: s.bar||1, easy:false, reps: [] };
+    draft = { h: s.h==null?100:s.h, w: Math.min(MAXW, s.w==null?6:s.w), bar: s.bar||1, easy:false, reps: [] };
     for(var i=0;i<s.sets;i++) draft.reps.push(s.reps);
     openId = ds.open;
     render();
@@ -1007,6 +1076,11 @@ document.addEventListener("click", function(evt){
   if(ds.cancel){ openId = null; return render(); }
   if(ds.bar){ draft.bar = parseInt(ds.bar,10); return render(); }
   if(ds.easy){ draft.easy = !draft.easy; return render(); }
+
+  if(ds.fak){
+    faktor = Math.max(1.1, Math.min(4, Math.round((faktor + parseInt(ds.fak,10)*0.1)*10)/10));
+    persist(); return render();
+  }
 
   if(ds.rate){
     var v = parseInt(ds.v,10);
@@ -1060,7 +1134,7 @@ document.addEventListener("click", function(evt){
     var d = parseInt(ds.d,10);
     if(ds.step==="kg") wDraft = Math.max(0, Math.round((wDraft + d*0.1)*10)/10);
     else if(ds.step==="h") draft.h = Math.max(0, Math.min(300, draft.h + d));
-    else if(ds.step==="w") draft.w = Math.max(0, draft.w + d);
+    else if(ds.step==="w") draft.w = Math.max(1, Math.min(MAXW, draft.w + d));
     else { var i2 = parseInt(ds.i,10); draft.reps[i2] = Math.max(0, draft.reps[i2] + d); }
     return render();
   }

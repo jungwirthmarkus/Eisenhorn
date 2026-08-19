@@ -1,4 +1,4 @@
-var CACHE = "eisenhorn-2026-08-07";
+var CACHE = "eisenhorn-2026-08-19";
 var FILES = ["./", "./index.html", "./manifest.json", "./icon.png"];
 
 self.addEventListener("install", function (e) {
