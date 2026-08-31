@@ -235,6 +235,7 @@ var EX = [
   {id:"innenrot",   n:"Innenrotation",           w:"X", cat:"Nacken & Schultern", sets:2, lo:12, hi:20, url:V+"innenrotation-mit-seilzug/",   setup:"Seilzug auf Ellbogenhöhe, Oberarm bleibt am Körper", zwei:1},
 
   {id:"crossover",  n:"Crossover Crunch",        w:"X", cat:"Rumpf", sets:2, lo:10, hi:15, url:V+"crossover-crunch-am-seilzug/",   setup:"Seilzug hoch, kniend, diagonal nach unten ziehen", zwei:1},
+  {id:"pike",       n:"Plank to Pike",             w:"X", cat:"Rumpf", sets:2, lo:8,  hi:15, url:V+"plank-to-pike/",                setup:"Höchste Kraftstufe, Griffband am Schienbein, ein Bein in der Schlaufe – Hüfte kontrolliert nach oben", zwei:1},
   {id:"russian",    n:"Russian Twist",           w:"X", cat:"Rumpf", sets:2, lo:10, hi:16, url:V+"russian-twist-am-seilzug/",      setup:"Seilzug in Brusthöhe, sitzend", setupL:"Seilzug in Brusthöhe, sitzend, Zug von rechts", setupR:"Seilzug in Brusthöhe, sitzend, Zug von links", zwei:1},
   {id:"seitcrunch", n:"Seitliche Crunches",      w:"X", cat:"Rumpf", sets:2, lo:10, hi:16, url:V+"seitliche-crunches-am-seilzug/", setup:"Seilzug hoch, seitlich kniend", zwei:1},
 
@@ -272,7 +273,7 @@ EX = (function(liste){
 })(EX);
 
 var PLANS = ["A","B","C"];
-var VERSION = "2026-08-22";
+var VERSION = "2026-08-25";
 var MAXW = 12;                 // das Horn hat 12 Widerstandsstufen
 var FKEY = "eisenhorn.faktor.v1";
 var faktor = 1.8;              // wie viel stärker die starke Stange ist, unter Mehr einstellbar
@@ -461,13 +462,13 @@ function suggest(id){
     var wegS = tagDiff(last.date);
     if(wegS >= 10)
       return {w:last.w,h:last.h,bar:bar,reps:Math.max(e.lo, best-10),sets:rampSets(e),tone:"halten",
-        why:wegS+" Tage her. Fang mit weniger Zeit an, der Rumpf ermüdet schneller als du denkst."};
+        why:wegS+" Tage her. Gleiche Einstellung, nur kürzer halten – der Rumpf ermüdet nach einer Pause schneller als du denkst."};
     if(last.hard)
       return {w:last.w,h:last.h,bar:bar,reps:best,sets:rampSets(e),tone:"halten",
         why:"Als zu schwer markiert. Bleib bei "+best+" Sekunden, bis es sich sauber anfühlt."};
     if(best >= e.hi)
       return {w:last.w,h:last.h,bar:bar,reps:e.hi,sets:rampSets(e),tone:"halten",
-        why:e.hi+" Sekunden sind genug. Länger bringt kaum mehr – halte die Zeit und achte auf eine gerade Linie. Wenn es zu leicht wird, stell den Widerstand von Hand höher."};
+        why:e.hi+" Sekunden sind genug – länger bringt kaum mehr. Wird es zu leicht, nimm eine schwerere Variante statt mehr Zeit: im Stütz abwechselnd einen Fuss anheben, oder Plank to Pike aus dem freien Training."};
     return {w:last.w,h:last.h,bar:bar,reps:Math.min(e.hi, best+5),sets:rampSets(e),tone:"normal",
       why:"Fünf Sekunden mehr als beim besten Satz. Zeit ist hier die Steigerung, nicht der Widerstand."};
   }
@@ -492,11 +493,12 @@ function suggest(id){
 
   // Wiedereinstieg nach längerer Unterbrechung
   var weg = tagDiff(last.date);
-  if(weg >= 10){
-    var minus = weg >= 21 ? 2 : 1;
-    return {w:Math.max(1,last.w-minus),h:last.h,bar:bar,reps:einstieg,sets:rampSets(e),tone:"halten",
-      why:weg+" Tage her. Steig "+minus+" Stufe"+(minus>1?"n":"")+" tiefer ein – Kraft kommt schneller zurück, als sie geht."};
-  }
+  if(weg >= 42)
+    return {w:Math.max(1,last.w-1),h:last.h,bar:bar,reps:einstieg,sets:rampSets(e),tone:"halten",
+      why:weg+" Tage her. Nach so langer Pause eine Stufe zurück und nur "+einstieg+" Wiederholungen. In zwei bis drei Einheiten bist du wieder da."};
+  if(weg >= 10)
+    return {w:last.w,h:last.h,bar:bar,reps:einstieg,sets:rampSets(e),tone:"halten",
+      why:weg+" Tage her. Gleiche Stufe, aber nur "+einstieg+" Wiederholungen – so kommst du ohne Muskelkater zurück, statt gleich zurückgestuft zu werden."};
 
   var min = Math.min.apply(null,last.reps);
 
