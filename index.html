@@ -112,15 +112,18 @@
   .barchip{display:inline-block; font-family:var(--mono); font-size:9px; letter-spacing:.1em;
            text-transform:uppercase; padding:2px 6px; border-radius:4px}
   .barchip.l{border:1px solid var(--line); color:var(--steel)}
+  .barchip.n{border:1px dashed var(--line); color:var(--steel)}
   .barchip.s{background:var(--stark); border:1px solid var(--stark); color:var(--ground); font-weight:600}
   .seg button.stark.on{border-color:var(--stark); color:var(--stark)}
   .seg{display:flex; gap:7px}
   .seg button{flex:1; padding:9px 0; border-radius:7px; border:1px solid var(--line);
               background:transparent; color:var(--steel); font-family:var(--mono); font-size:12.5px; cursor:pointer}
   .seg button.on{border-color:var(--brass); background:var(--raise); color:var(--brass)}
-  .toggle{width:100%; margin-top:9px; padding:10px 0; border-radius:7px; border:1px dashed var(--line);
+  .marker{display:flex; gap:7px; margin-top:9px}
+  .toggle{width:100%; padding:10px 0; border-radius:7px; border:1px dashed var(--line);
           background:transparent; color:var(--steel); font-size:12.5px; cursor:pointer}
-  .toggle.on{border-style:solid; border-color:var(--brass); color:var(--brass)}
+  .toggle.on{border-style:solid; border-color:var(--ok); color:var(--ok)}
+  .toggle.hart.on{border-color:var(--stark); color:var(--stark)}
   .chip.side{color:var(--brass); border-color:var(--brass)}
   .del{background:transparent; border:none; color:var(--steel); font-size:18px; line-height:1;
        padding:6px 4px 6px 14px; margin:-6px 0; cursor:pointer; opacity:.55}
@@ -208,9 +211,13 @@ var EX = [
   {id:"rot",      n:"Rumpfrotation",           w:"A+", sets:2, lo:10, hi:15, url:V+"rumpfrotation-am-seilzug/",            setup:"Seilzug in Brusthöhe", setupL:"Seilzug in Brusthöhe, Zug von rechts", setupR:"Seilzug in Brusthöhe, Zug von links", zwei:1},
 
   // B
+  {id:"waden",    n:"Wadenheben",              w:"A+", sets:2, lo:12, hi:20, url:V+"219-wadenheben-mit-griff-am-horn/",    setup:"Griff am Horn, Fussballen erhöht, beide Beine"},
+
+  // B
   {id:"rudern",   n:"Rudern einarmig",         w:"B",  sets:3, lo:8,  hi:12, url:V+"rudern-einarmig/",                     setup:"Griff, mittlere Höhe", zwei:1},
   {id:"schulter", n:"Schulterdrücken",         w:"B",  sets:3, lo:8,  hi:12, url:V+"200-schulterdruecken-vor-dem-kopf/",   setup:"Griffstange, Schulterhöhe"},
-  {id:"rdl",      n:"Rumänisches Kreuzheben",  w:"B",  sets:3, lo:8,  hi:12, url:V+"205-rumaenisches-kreuzheben/",         setup:"Griffstange, Horn tief", pm:1},
+  {id:"beinpresse",n:"Beinpresse",             w:"B",  sets:3, lo:8,  hi:12, url:V+"beinpresse/",                          setup:"Rücken am Boden, Gesäss unter der Stange, Füsse hüftbreit auf der Griffstange"},
+  {id:"rdl",      n:"Rumänisches Kreuzheben",  w:"B+", sets:2, lo:8,  hi:12, url:V+"205-rumaenisches-kreuzheben/",         setup:"Griffstange, Horn tief, Hüfte nach hinten", pm:1},
   {id:"plank",    n:"Unterarmstütz",           w:"B+", sets:2, lo:20, hi:60, url:V+"unterarmstuetz-mit-griffband/",        setup:"Griffband tief, Körper in einer Linie. Sekunden statt Wiederholungen", sek:1},
   {id:"rudernob", n:"Rudern Obergriff",        w:"B+", sets:2, lo:12, hi:18, url:V+"einarmiges-rudern-mit-obergriff-am-seilzug/", setup:"Seilzug, Obergriff, Ellbogen weit – trifft die hintere Schulter", zwei:1},
 
@@ -218,6 +225,7 @@ var EX = [
   {id:"rudernvb", n:"Rudern vorgebeugt",       w:"C",  sets:3, lo:8,  hi:12, url:V+"201-vorgebeugtes-rudern-mit-griffstange/",   setup:"Griffstange, Horn tief, Oberkörper vorgebeugt"},
   {id:"bruststeh",n:"Brustdrücken stehend",    w:"C",  sets:3, lo:8,  hi:12, url:V+"209-brustdruecken-stehend-mit-griffstange/", setup:"Griffstange, Horn auf Brusthöhe, Schrittstellung"},
   {id:"kreuz",    n:"Kreuzheben",              w:"C",  sets:3, lo:6,  hi:10, url:V+"kreuzheben-mit-griffstange-deadlift/", setup:"Griffstange auf Schienbeinhöhe, breiter Wechselgriff, Rücken unter Spannung", pm:1},
+  {id:"latzugein", n:"Einarmiger Latzug",      w:"C+", sets:2, lo:10, hi:15, url:V+"einarmiger-latzug-am-seilzug/",         setup:"Seilzug hoch, eine Hand", zwei:1},
   {id:"bizeps",   n:"Bizepscurls",             w:"C+", sets:2, lo:10, hi:15, url:V+"bizepscurls/",                         setup:"Griffstange, Horn tief"},
   {id:"crunch",   n:"Crunches",                w:"C+", sets:2, lo:12, hi:20, url:V+"crunches-mit-griffband/",              setup:"Griffband hoch, Zug von oben, Bauch einrollen"},
   {id:"trizeps",  n:"Trizepsdrücken",          w:"C+", sets:2, lo:10, hi:15, url:V+"trizepsdruecken-am-seilzug/",          setup:"Seilzug hoch, beide Hände"},
@@ -225,7 +233,6 @@ var EX = [
   // X – freies Training zwischendurch, zählt nicht auf die Wochenrechnung
   {id:"aussenrot",  n:"Aussenrotation",          w:"X", cat:"Nacken & Schultern", sets:2, lo:12, hi:20, url:V+"aussenrotation-mit-seilzug/",  setup:"Seilzug auf Ellbogenhöhe, Oberarm bleibt am Körper", zwei:1},
   {id:"innenrot",   n:"Innenrotation",           w:"X", cat:"Nacken & Schultern", sets:2, lo:12, hi:20, url:V+"innenrotation-mit-seilzug/",   setup:"Seilzug auf Ellbogenhöhe, Oberarm bleibt am Körper", zwei:1},
-  {id:"latzugein",  n:"Einarmiger Latzug",       w:"X", cat:"Nacken & Schultern", sets:2, lo:10, hi:15, url:V+"einarmiger-latzug-am-seilzug/",setup:"Seilzug hoch, eine Hand", zwei:1},
 
   {id:"crossover",  n:"Crossover Crunch",        w:"X", cat:"Rumpf", sets:2, lo:10, hi:15, url:V+"crossover-crunch-am-seilzug/",   setup:"Seilzug hoch, kniend, diagonal nach unten ziehen", zwei:1},
   {id:"russian",    n:"Russian Twist",           w:"X", cat:"Rumpf", sets:2, lo:10, hi:16, url:V+"russian-twist-am-seilzug/",      setup:"Seilzug in Brusthöhe, sitzend", setupL:"Seilzug in Brusthöhe, sitzend, Zug von rechts", setupR:"Seilzug in Brusthöhe, sitzend, Zug von links", zwei:1},
@@ -236,7 +243,6 @@ var EX = [
   {id:"einbeinkb",  n:"Einbeinige Kniebeuge",    w:"X", cat:"Beine & Balance", sets:2, lo:8,  hi:12, url:V+"einbeinige-kniebeuge-mit-entlastung/", setup:"Griffstange zum Entlasten", setupL:"Griffstange zum Entlasten, linkes Bein steht", setupR:"Griffstange zum Entlasten, rechtes Bein steht", zwei:1},
   {id:"einbeinkh",  n:"Einbeiniges Kreuzheben",  w:"X", cat:"Beine & Balance", sets:2, lo:8,  hi:12, url:V+"einbeiniges-kreuzheben-einarmig/",     setup:"Griff, Horn tief", setupL:"Griff, Horn tief, linkes Bein steht", setupR:"Griff, Horn tief, rechtes Bein steht", zwei:1},
   {id:"lunge",      n:"Ausfallschritte",         w:"X", cat:"Beine & Balance", sets:2, lo:10, hi:12, url:V+"ausfallschritte/",                    setup:"Griffband, Horn tief", setupL:"Griffband, Horn tief, linkes Bein vorne", setupR:"Griffband, Horn tief, rechtes Bein vorne", zwei:1},
-  {id:"waden",      n:"Wadenheben",              w:"X", cat:"Beine & Balance", sets:2, lo:12, hi:20, url:V+"219-wadenheben-mit-griff-am-horn/",    setup:"Griff am Horn, Fußballen erhöht, beide Beine"},
   {id:"beinbeuger", n:"Beinbeuger liegend",      w:"X", cat:"Beine & Balance", sets:2, lo:10, hi:15, url:V+"beinbeuger-liegend/",                  setup:"Griffband am Fußgelenk, Horn tief", zwei:1},
 
   {id:"mountain",   n:"Mountain Climbers",       w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:20, hi:45, url:V+"mountain-climbers/", setup:"Griffband, Stützposition, Beine wechseln sich ab", sek:1},
@@ -266,7 +272,7 @@ EX = (function(liste){
 })(EX);
 
 var PLANS = ["A","B","C"];
-var VERSION = "2026-08-19";
+var VERSION = "2026-08-22";
 var MAXW = 12;                 // das Horn hat 12 Widerstandsstufen
 var FKEY = "eisenhorn.faktor.v1";
 var faktor = 1.8;              // wie viel stärker die starke Stange ist, unter Mehr einstellbar
@@ -429,8 +435,9 @@ function proTag(all){
       vor.reps = vor.reps.concat(l.reps);
       vor.date = l.date;
       vor.easy = vor.easy || l.easy;
+      vor.hard = vor.hard || l.hard;
     }else{
-      out.push({ date:l.date, w:l.w, h:l.h, bar:l.bar, easy:l.easy, reps:l.reps.slice() });
+      out.push({ date:l.date, w:l.w, h:l.h, bar:l.bar, easy:l.easy, hard:l.hard, reps:l.reps.slice() });
     }
   });
   return out;
@@ -439,55 +446,73 @@ function proTag(all){
 function suggest(id){
   var e = ex(id), all = proTag(allOf(id));
   if(!all.length) return {w:null,h:null,bar:1,reps:e.lo,sets:rampSets(e),tone:"neu",
-    why:"Erstes Mal. Widerstand so wählen, dass "+e.lo+" Wiederholungen fordernd sind."};
+    why: e.sek
+      ? "Erstes Mal. Halte "+e.lo+" Sekunden sauber – gesteigert wird hier über die Zeit, nicht über den Widerstand."
+      : "Erstes Mal. Widerstand so wählen, dass "+e.lo+" Wiederholungen fordernd sind."};
 
   var last = all[all.length-1];
   var bar = last.bar || 1;
   var top = last.reps.every(function(r){ return r >= e.hi; });
-  var reserve = last.reps.length > rampSets(e);   // mehr Sätze gemacht als vorgeschlagen
 
-  // Nach einem Stangenwechsel ist die erste Einheit eine Eichung.
-  // Dann höchstens eine Stufe, nie ein Doppelsprung.
+  // Zeit-Übungen laufen ausschliesslich über die Sekunden.
+  // Widerstand und Stange bleiben unverändert, sie sind hier nur Setup-Information.
+  if(e.sek){
+    var best = Math.max.apply(null, last.reps);
+    var wegS = tagDiff(last.date);
+    if(wegS >= 10)
+      return {w:last.w,h:last.h,bar:bar,reps:Math.max(e.lo, best-10),sets:rampSets(e),tone:"halten",
+        why:wegS+" Tage her. Fang mit weniger Zeit an, der Rumpf ermüdet schneller als du denkst."};
+    if(last.hard)
+      return {w:last.w,h:last.h,bar:bar,reps:best,sets:rampSets(e),tone:"halten",
+        why:"Als zu schwer markiert. Bleib bei "+best+" Sekunden, bis es sich sauber anfühlt."};
+    if(best >= e.hi)
+      return {w:last.w,h:last.h,bar:bar,reps:e.hi,sets:rampSets(e),tone:"halten",
+        why:e.hi+" Sekunden sind genug. Länger bringt kaum mehr – halte die Zeit und achte auf eine gerade Linie. Wenn es zu leicht wird, stell den Widerstand von Hand höher."};
+    return {w:last.w,h:last.h,bar:bar,reps:Math.min(e.hi, best+5),sets:rampSets(e),tone:"normal",
+      why:"Fünf Sekunden mehr als beim besten Satz. Zeit ist hier die Steigerung, nicht der Widerstand."};
+  }
+
   var vorher = all.length > 1 ? all[all.length-2] : null;
-  var frischGewechselt = !!(vorher && (vorher.bar||1) !== bar);
 
-  function hoch(plus, grund){
-    // Eine Stufe auf der starken Stange entspricht fast zwei auf der leichten.
-    // Deshalb dort nie zwei Stufen auf einmal.
-    if(bar === 2 && plus > 1){
-      plus = 1;
-      grund = "Eine Stufe hoch. Auf der starken Stange ist ein Doppelsprung zu viel – eine Stufe hier entspricht fast zwei auf der leichten.";
-    }
-    if(frischGewechselt && plus > 1){
-      plus = 1;
-      grund = "Erste Einheit nach dem Stangenwechsel. Nur eine Stufe – erst mal sauber einpendeln.";
-    }
-    var z = steigern(last.w, bar, plus);
+  // Nach einer Stufenerhöhung deutlich tiefer bei den Wiederholungen einsteigen.
+  // Die Stufen am Horn sind unten nicht linear – eine Stufe mehr kann sich wie
+  // deutlich mehr Last anfühlen, und dann tragen nur weniger Wiederholungen.
+  var einstieg = Math.max(4, Math.round(e.lo * 0.75));
+
+  function hoch(grund){
+    var z = steigern(last.w, bar, 1);
     if(z.ende)
       return {w:MAXW,h:last.h,bar:2,reps:Math.min(Math.min.apply(null,last.reps)+1,e.hi),sets:rampSets(e),tone:"halten",
         why:"Stufe "+MAXW+" auf der starken Stange ist das Maximum. Ab hier über Wiederholungen und sauberere Ausführung steigern."};
     if(z.wechsel)
-      return {w:z.w,h:last.h,bar:2,reps:e.lo,sets:rampSets(e),tone:"hoch",
-        why:"Die leichte Stange ist bei "+MAXW+" am Anschlag. Wechsle auf die starke Stange, Stufe "+z.w+" – das ist etwas mehr Last als bisher."};
-    return {w:z.w,h:last.h,bar:z.bar,reps:e.lo,sets:rampSets(e),tone:"hoch",why:grund};
+      return {w:z.w,h:last.h,bar:2,reps:einstieg,sets:rampSets(e),tone:"hoch",
+        why:"Die leichte Stange ist bei "+MAXW+" am Anschlag. Wechsle auf die starke Stange, Stufe "+z.w+" – und fang bei "+einstieg+" Wiederholungen an."};
+    return {w:z.w,h:last.h,bar:z.bar,reps:einstieg,sets:rampSets(e),tone:"hoch",why:grund};
   }
 
   // Wiedereinstieg nach längerer Unterbrechung
   var weg = tagDiff(last.date);
   if(weg >= 10){
     var minus = weg >= 21 ? 2 : 1;
-    return {w:Math.max(1,last.w-minus),h:last.h,bar:bar,reps:e.lo,sets:rampSets(e),tone:"halten",
-      why:weg+" Tage her. Steig "+minus+" Stufe"+(minus>1?"n":"")+" tiefer ein – Kraft kommt schneller zurück, als sie geht. In zwei Einheiten bist du wieder da."};
+    return {w:Math.max(1,last.w-minus),h:last.h,bar:bar,reps:einstieg,sets:rampSets(e),tone:"halten",
+      why:weg+" Tage her. Steig "+minus+" Stufe"+(minus>1?"n":"")+" tiefer ein – Kraft kommt schneller zurück, als sie geht."};
   }
 
-  if(last.easy && top)
-    return hoch(2, "Als zu leicht markiert und alle Sätze auf "+e.hi+". Zwei Stufen hoch.");
+  var min = Math.min.apply(null,last.reps);
+
+  // "War zu schwer" – du bestimmst, dass es nicht weitergeht
+  if(last.hard){
+    if(vorher && vorher.hard && last.w > 1)
+      return {w:Math.max(1,last.w-1),h:last.h,bar:bar,reps:e.lo,sets:rampSets(e),tone:"runter",
+        why:"Zweimal als zu schwer markiert. Eine Stufe zurück und von dort sauber aufbauen."};
+    return {w:last.w,h:last.h,bar:bar,reps:min,sets:rampSets(e),tone:"halten",
+      why:"Als zu schwer markiert. Gleiche Stufe, gleiche Wiederholungen – bleib hier, bis es sich leicht anfühlt."};
+  }
+
   if(last.easy)
-    return hoch(1, "Als zu leicht markiert. Eine Stufe hoch, Wiederholungen starten wieder unten.");
-  if(top && reserve)
-    return hoch(2, "Alle Sätze auf "+e.hi+", und du hattest noch Sätze übrig. Zwei Stufen hoch.");
+    return hoch("Als zu leicht markiert. Eine Stufe hoch, dafür nur "+einstieg+" Wiederholungen – das ist der ehrliche Preis für mehr Last.");
   if(top)
-    return hoch(1, "Letztes Mal alle Sätze auf "+e.hi+". Widerstand eine Stufe hoch.");
+    return hoch("Alle Sätze auf "+e.hi+". Eine Stufe hoch, dafür zurück auf "+einstieg+" Wiederholungen.");
 
   // Einheiten am Stück mit derselben Einstellung – Stufe und Stange
   var streak = [];
@@ -512,7 +537,6 @@ function suggest(id){
     return {w:Math.max(1,last.w-1),h:last.h,bar:bar,reps:e.lo,sets:rampSets(e),tone:"runter",
       why:"Dreimal keine Steigerung. Eine Stufe zurück und sauber neu aufbauen – das ist kein Rückschritt, sondern Anlauf."};
 
-  var min = Math.min.apply(null,last.reps);
   if(stalls === 1)
     return {w:last.w,h:last.h,bar:bar,reps:Math.min(min+1,e.hi),sets:rampSets(e),tone:"halten",
       why:"Letztes Mal keine Steigerung. Widerstand halten, Technik und Tempo prüfen, Schlaf im Blick behalten."};
@@ -723,7 +747,8 @@ function cardHTML(e){
       '<div class="ro"><div class="lbl">Widerstand</div><div class="val" style="color:'+
         (s.w==null?'var(--steel)':(s.bar===2?'var(--stark)':'var(--brass)'))+'">'+
         (s.w==null?'—':s.w)+'</div>'+
-        '<div class="sub"><span class="barchip '+(s.bar===2?'s':'l')+'">'+(s.bar===2?'stark':'leicht')+'</span></div></div>'+
+        '<div class="sub"><span class="barchip '+(e.sek?'n':(s.bar===2?'s':'l'))+'">'+
+          (e.sek ? 'nur Setup' : (s.bar===2?'stark':'leicht'))+'</span></div></div>'+
       '<div class="sep"></div>'+
       '<div class="ro"><div class="lbl">Heute</div><div class="val">'+s.sets+'<span class="x">×</span>'+s.reps+(e.sek?'<span class="u">s</span>':'')+'</div></div>'+
     '</div>';
@@ -755,13 +780,16 @@ function cardHTML(e){
       '<button data-sets="-1"'+(d.reps.length<=1?' disabled':'')+'>− Satz</button>'+
       '<span>'+d.reps.length+' von '+rampSets(e)+' geplant</span>'+
       '<button data-sets="1"'+(d.reps.length>=6?' disabled':'')+'>+ Satz</button></div>';
-    h += '<div class="hint">Widerstandsstange</div>'+
+    h += (e.sek ? '' :
+      '<div class="hint">Widerstandsstange</div>'+
       '<div class="seg">'+
         '<button class="'+(d.bar===1?"on":"")+'" data-bar="1">leicht</button>'+
         '<button class="stark '+(d.bar===2?"on":"")+'" data-bar="2">stark</button>'+
-      '</div>'+
-      '<button class="toggle'+(d.easy?" on":"")+'" data-easy="1">'+
-        (d.easy?'✓ ':'')+'War zu leicht – nächstes Mal deutlich höher</button>';
+      '</div>')+
+      '<div class="marker">'+
+        '<button class="toggle'+(d.easy?" on":"")+'" data-easy="1">'+(d.easy?'✓ ':'')+'war zu leicht</button>'+
+        '<button class="toggle hart'+(d.hard?" on":"")+'" data-hard="1">'+(d.hard?'✓ ':'')+'war zu schwer</button>'+
+      '</div>';
     h += '<div class="row" style="margin-top:12px">'+
       '<button class="btn ghost" style="flex:1;margin:0" data-cancel="1">Abbrechen</button>'+
       '<button class="btn brass" style="flex:2;margin:0" data-save="'+e.id+'">Speichern</button></div></div>';
@@ -966,7 +994,9 @@ function viewMehr(){
     '<li>Facepulls und Reverse Flys bewusst locker und mit viel Reserve. Die sind für den Nacken, nicht für Rekorde.</li>'+
     '<li>Pause zwischen den Sätzen 60 bis 90 Sekunden.</li>'+
     '<li>Trag ein, was du <b>mit</b> dieser Reserve geschafft hast. Sonst schlägt die App zu früh mehr Widerstand vor.</li>'+
-    '<li>Schaffst du mühelos mehr Sätze als vorgeschlagen, ist nicht die Satzzahl zu niedrig, sondern der Widerstand. Setz den Haken „War zu leicht" – dann springt die App gleich zwei Stufen hoch.</li>'+
+    '<li>Der Widerstand steigt immer nur um <b>eine</b> Stufe. Dafür fallen die Wiederholungen deutlich zurück – eine Stufe am Horn ist unten kein kleiner Schritt.</li>'+
+    '<li>Zwei Marker im Eingabefeld: <b>war zu leicht</b> hebt sofort eine Stufe an, auch ohne dass du oben angekommen bist. <b>war zu schwer</b> hält dich auf der Stufe; zweimal hintereinander gesetzt geht es eine Stufe zurück.</li>'+
+    '<li>Es ist völlig in Ordnung, wochenlang auf derselben Stufe zu bleiben und nur die Wiederholungen aufzubauen. Das ist Fortschritt, nicht Stillstand.</li>'+
   '</ul></div>'+
 
   '<div class="card"><div class="name">Wenn wenig Zeit ist</div><ul class="rules">'+
@@ -1045,7 +1075,7 @@ function render(){
 
 /* ---------- Interaktion ---------- */
 document.addEventListener("click", function(evt){
-  var t = evt.target.closest ? evt.target.closest("[data-tab],[data-plan],[data-open],[data-cancel],[data-save],[data-step],[data-sets],[data-del],[data-fak],[data-hide],[data-show],[data-rate],[data-pause],[data-pauseend],[data-bar],[data-easy],[data-extra],[data-export],[data-import],[data-reset],[data-wopen],[data-wcancel],[data-wsave]") : null;
+  var t = evt.target.closest ? evt.target.closest("[data-tab],[data-plan],[data-open],[data-cancel],[data-save],[data-step],[data-sets],[data-del],[data-fak],[data-hide],[data-show],[data-rate],[data-pause],[data-pauseend],[data-bar],[data-easy],[data-hard],[data-extra],[data-export],[data-import],[data-reset],[data-wopen],[data-wcancel],[data-wsave]") : null;
   if(!t) return;
   var ds = t.dataset;
 
@@ -1065,7 +1095,7 @@ document.addEventListener("click", function(evt){
 
   if(ds.open){
     var s = suggest(ds.open);
-    draft = { h: s.h==null?100:s.h, w: Math.min(MAXW, s.w==null?6:s.w), bar: s.bar||1, easy:false, reps: [] };
+    draft = { h: s.h==null?100:s.h, w: Math.min(MAXW, s.w==null?6:s.w), bar: s.bar||1, easy:false, hard:false, reps: [] };
     for(var i=0;i<s.sets;i++) draft.reps.push(s.reps);
     openId = ds.open;
     render();
@@ -1075,7 +1105,8 @@ document.addEventListener("click", function(evt){
   }
   if(ds.cancel){ openId = null; return render(); }
   if(ds.bar){ draft.bar = parseInt(ds.bar,10); return render(); }
-  if(ds.easy){ draft.easy = !draft.easy; return render(); }
+  if(ds.hard){ draft.hard = !draft.hard; if(draft.hard) draft.easy = false; return render(); }
+  if(ds.easy){ draft.easy = !draft.easy; if(draft.easy) draft.hard = false; return render(); }
 
   if(ds.fak){
     faktor = Math.max(1.1, Math.min(4, Math.round((faktor + parseInt(ds.fak,10)*0.1)*10)/10));
@@ -1135,12 +1166,17 @@ document.addEventListener("click", function(evt){
     if(ds.step==="kg") wDraft = Math.max(0, Math.round((wDraft + d*0.1)*10)/10);
     else if(ds.step==="h") draft.h = Math.max(0, Math.min(300, draft.h + d));
     else if(ds.step==="w") draft.w = Math.max(1, Math.min(MAXW, draft.w + d));
-    else { var i2 = parseInt(ds.i,10); draft.reps[i2] = Math.max(0, draft.reps[i2] + d); }
+    else {
+      var i2 = parseInt(ds.i,10);
+      var eo = openId ? ex(openId) : null;
+      var schritt = (eo && eo.sek) ? 5 : 1;
+      draft.reps[i2] = Math.max(0, draft.reps[i2] + d*schritt);
+    }
     return render();
   }
 
   if(ds.save){
-    logs.push({ ex: ds.save, date: new Date().toISOString(), h: draft.h, w: draft.w, bar: draft.bar, easy: draft.easy, reps: draft.reps.slice() });
+    logs.push({ ex: ds.save, date: new Date().toISOString(), h: draft.h, w: draft.w, bar: draft.bar, easy: draft.easy, hard: draft.hard, reps: draft.reps.slice() });
     persist();
     openId = null;
     saved[ds.save] = true;
