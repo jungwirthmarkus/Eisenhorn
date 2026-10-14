@@ -165,6 +165,10 @@
   .ruhe b{display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.13em;
           text-transform:uppercase; color:var(--steel); margin-bottom:6px}
   .ruhe span{display:block; font-size:12.5px; color:var(--steel); line-height:1.55}
+  .umbau{text-align:center; font-family:var(--mono); font-size:10.5px; color:var(--steel);
+         margin:-3px 0 8px; letter-spacing:.03em}
+  .umbau.gross{color:var(--brass)}
+  .kat.wichtig{color:var(--brass)}
   .why-halten{color:var(--brass)}
   .setcount{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:4px}
   .setcount button{background:transparent; border:1px solid var(--line); color:var(--steel);
@@ -204,51 +208,50 @@ var EX = [
   // zwei Karten, links und rechts, mit getrennter Progression.
 
   // A
-  {id:"lat",      n:"Latzug zur Brust",        w:"A",  sets:3, lo:8,  hi:12, url:V+"latzug-zur-brust/",                    setup:"Griffstange, Horn hoch"},
-  {id:"bank",     n:"Bodendrücken",            w:"A",  sets:3, lo:8,  hi:12, url:V+"229-bankdruecken-mit-griffstange/",    setup:"Griffstange, Rücken am Boden, Ellbogen setzen unten auf"},
-  {id:"knie",     n:"Kniebeugen",              w:"A",  sets:3, lo:8,  hi:12, url:V+"203-kniebeugen/",                      setup:"Griffstange auf den Schultern", pm:1},
-  {id:"face",     n:"Facepulls",               w:"A+", sets:2, lo:12, hi:18, url:V+"facepulls-am-seilzug/",                setup:"Seilzug in Kopfhöhe, beide Hände"},
-  {id:"rot",      n:"Rumpfrotation",           w:"A+", sets:2, lo:10, hi:15, url:V+"rumpfrotation-am-seilzug/",            setup:"Seilzug in Brusthöhe", setupL:"Seilzug in Brusthöhe, Zug von rechts", setupR:"Seilzug in Brusthöhe, Zug von links", zwei:1},
+  {id:"lat",      n:"Latzug zur Brust", z:"stange",        w:"A",  sets:3, lo:6,  hi:15, url:V+"latzug-zur-brust/",                    setup:"Griffstange, Horn hoch"},
+  {id:"bank",     n:"Bodendrücken", z:"stange",            w:"A",  sets:3, lo:6,  hi:15, url:V+"229-bankdruecken-mit-griffstange/",    setup:"Griffstange, Rücken am Boden, Ellbogen setzen unten auf"},
+  {id:"knie",     n:"Kniebeugen", z:"stange",              w:"A",  sets:3, lo:6,  hi:15, url:V+"203-kniebeugen/",                      setup:"Griffstange auf den Schultern", pm:1},
+  {id:"face",     n:"Facepulls", z:"seil",               w:"A", sets:2, lo:12, hi:18, url:V+"facepulls-am-seilzug/",                setup:"Seilzug oben, Griffband durch die Schlaufe, beide Hände"},
+  {id:"rot",      n:"Rumpfrotation", z:"seil",           w:"X", cat:"Wichtig", sets:2, lo:10, hi:15, url:V+"rumpfrotation-am-seilzug/",            setup:"Seilzug oben, Griffband zweimal gefaltet, diagonal zum Gerät, beide Hände, Arme gestreckt", zwei:1},
+
+  {id:"waden",    n:"Stehendes Wadenheben", z:"stange",    w:"X", cat:"Beine & Balance", sets:2, lo:12, hi:20, url:V+"stehendes-wadenheben/",    setup:"Griffstange mit hängenden Armen, Fussballen auf einer Erhöhung, Fersen frei"},
 
   // B
-  {id:"waden",    n:"Wadenheben",              w:"A+", sets:2, lo:12, hi:20, url:V+"219-wadenheben-mit-griff-am-horn/",    setup:"Griff am Horn, Fussballen erhöht, beide Beine"},
-
-  // B
-  {id:"rudern",   n:"Rudern einarmig",         w:"B",  sets:3, lo:8,  hi:12, url:V+"rudern-einarmig/",                     setup:"Griff, mittlere Höhe", zwei:1},
-  {id:"schulter", n:"Schulterdrücken",         w:"B",  sets:3, lo:8,  hi:12, url:V+"200-schulterdruecken-vor-dem-kopf/",   setup:"Griffstange, Schulterhöhe"},
-  {id:"beinpresse",n:"Beinpresse",             w:"B",  sets:3, lo:8,  hi:12, url:V+"beinpresse/",                          setup:"Rücken am Boden, Gesäss unter der Stange, Füsse hüftbreit auf der Griffstange"},
-  {id:"rdl",      n:"Rumänisches Kreuzheben",  w:"B+", sets:2, lo:8,  hi:12, url:V+"205-rumaenisches-kreuzheben/",         setup:"Griffstange, Horn tief, Hüfte nach hinten", pm:1},
-  {id:"plank",    n:"Unterarmstütz",           w:"B+", sets:2, lo:20, hi:60, url:V+"unterarmstuetz-mit-griffband/",        setup:"Griffband tief, Körper in einer Linie. Sekunden statt Wiederholungen", sek:1},
-  {id:"rudernob", n:"Rudern Obergriff",        w:"B+", sets:2, lo:12, hi:18, url:V+"einarmiges-rudern-mit-obergriff-am-seilzug/", setup:"Seilzug, Obergriff, Ellbogen weit – trifft die hintere Schulter", zwei:1},
+  {id:"rudern",   n:"Rudern einarmig", z:"griff",         w:"B",  sets:3, lo:6,  hi:15, url:V+"rudern-einarmig/",                     setup:"Griff, mittlere Höhe", zwei:1},
+  {id:"schulter", n:"Schulterdrücken", z:"stange",         w:"B",  sets:3, lo:6,  hi:15, url:V+"200-schulterdruecken-vor-dem-kopf/",   setup:"Griffstange, Schulterhöhe"},
+  {id:"beinpresse",n:"Beinpresse", z:"stange",             w:"B",  sets:3, lo:6,  hi:15, url:V+"beinpresse/",                          setup:"Rücken am Boden, Gesäss unter der Stange, Füsse hüftbreit auf der Griffstange"},
+  {id:"rdl",      n:"Rumänisches Kreuzheben", z:"stange",  w:"X", cat:"Wichtig", sets:2, lo:6,  hi:15, url:V+"205-rumaenisches-kreuzheben/",         setup:"Griffstange, Horn tief, Hüfte nach hinten", pm:1},
+  {id:"plank",    n:"Unterarmstütz", z:"band",           w:"B", sets:2, lo:20, hi:60, url:V+"unterarmstuetz-mit-griffband/",        setup:"Griffband tief, Körper in einer Linie. Sekunden statt Wiederholungen", sek:1},
+  {id:"rudernob", n:"Rudern Obergriff", z:"seil",        w:"X", cat:"Nacken & Schultern", sets:2, lo:12, hi:18, url:V+"einarmiges-rudern-mit-obergriff-am-seilzug/", setup:"Seilzug, Obergriff, Ellbogen weit – trifft die hintere Schulter", zwei:1},
 
   // C
-  {id:"rudernvb", n:"Rudern vorgebeugt",       w:"C",  sets:3, lo:8,  hi:12, url:V+"201-vorgebeugtes-rudern-mit-griffstange/",   setup:"Griffstange, Horn tief, Oberkörper vorgebeugt"},
-  {id:"bruststeh",n:"Brustdrücken stehend",    w:"C",  sets:3, lo:8,  hi:12, url:V+"209-brustdruecken-stehend-mit-griffstange/", setup:"Griffstange, Horn auf Brusthöhe, Schrittstellung"},
-  {id:"kreuz",    n:"Kreuzheben",              w:"C",  sets:3, lo:6,  hi:10, url:V+"kreuzheben-mit-griffstange-deadlift/", setup:"Griffstange auf Schienbeinhöhe, breiter Wechselgriff, Rücken unter Spannung", pm:1},
-  {id:"latzugein", n:"Einarmiger Latzug",      w:"C+", sets:2, lo:10, hi:15, url:V+"einarmiger-latzug-am-seilzug/",         setup:"Seilzug hoch, eine Hand", zwei:1},
-  {id:"bizeps",   n:"Bizepscurls",             w:"C+", sets:2, lo:10, hi:15, url:V+"bizepscurls/",                         setup:"Griffstange, Horn tief"},
-  {id:"crunch",   n:"Crunches",                w:"C+", sets:2, lo:12, hi:20, url:V+"crunches-mit-griffband/",              setup:"Griffband hoch, Zug von oben, Bauch einrollen"},
-  {id:"trizeps",  n:"Trizepsdrücken",          w:"C+", sets:2, lo:10, hi:15, url:V+"trizepsdruecken-am-seilzug/",          setup:"Seilzug hoch, beide Hände"},
+  {id:"rudernvb", n:"Rudern vorgebeugt", z:"stange",       w:"C",  sets:3, lo:6,  hi:15, url:V+"201-vorgebeugtes-rudern-mit-griffstange/",   setup:"Griffstange, Horn tief, Oberkörper vorgebeugt"},
+  {id:"bruststeh",n:"Brustdrücken stehend", z:"stange",    w:"C",  sets:3, lo:6,  hi:15, url:V+"209-brustdruecken-stehend-mit-griffstange/", setup:"Griffstange, Horn auf Brusthöhe, Schrittstellung"},
+  {id:"kreuz",    n:"Kreuzheben", z:"stange",              w:"C",  sets:3, lo:5,  hi:12, url:V+"kreuzheben-mit-griffstange-deadlift/", setup:"Griffstange auf Schienbeinhöhe, breiter Wechselgriff, Rücken unter Spannung", pm:1},
+  {id:"latzugein", n:"Einarmiger Latzug", z:"seil",      w:"X", cat:"Wichtig", sets:2, lo:10, hi:15, url:V+"einarmiger-latzug-am-seilzug/",         setup:"Seilzug oben, Griffband gefaltet, sitzend am Boden, eine Hand", zwei:1},
+  {id:"bizeps",   n:"Bizepscurls", z:"stange",             w:"X", cat:"Arme", sets:2, lo:10, hi:15, url:V+"bizepscurls/",                         setup:"Griffstange, Horn tief"},
+  {id:"crunch",   n:"Crunches", z:"band",                w:"C", sets:2, lo:12, hi:20, url:V+"crunches-mit-griffband/",              setup:"Griffband hoch, Zug von oben, Bauch einrollen"},
+  {id:"trizeps",  n:"Trizepsdrücken", z:"seil",          w:"X", cat:"Arme", sets:2, lo:10, hi:15, url:V+"trizepsdruecken-am-seilzug/",          setup:"Seilzug hoch, beide Hände"},
 
   // X – freies Training zwischendurch, zählt nicht auf die Wochenrechnung
-  {id:"aussenrot",  n:"Aussenrotation",          w:"X", cat:"Nacken & Schultern", sets:2, lo:12, hi:20, url:V+"aussenrotation-mit-seilzug/",  setup:"Seilzug auf Ellbogenhöhe, Oberarm bleibt am Körper", zwei:1},
-  {id:"innenrot",   n:"Innenrotation",           w:"X", cat:"Nacken & Schultern", sets:2, lo:12, hi:20, url:V+"innenrotation-mit-seilzug/",   setup:"Seilzug auf Ellbogenhöhe, Oberarm bleibt am Körper", zwei:1},
+  {id:"seitheben",  n:"Seitenheben", z:"seil",             w:"X", cat:"Wichtig", sets:2, lo:10, hi:20, url:V+"seitenheben-am-seilzug/",      setup:"Seilzug unten, Griffband zweimal gefaltet, seitlich zum Gerät, gegenüberliegende Hand im Obergriff", zwei:1},
+  {id:"aussenrot",  n:"Aussenrotation", z:"seil",          w:"X", cat:"Nacken & Schultern", sets:2, lo:12, hi:20, url:V+"aussenrotation-mit-seilzug/",  setup:"Seilzug mittlere Position, seitlich zum Gerät, äussere Hand, Oberarm bleibt am Körper", zwei:1},
+  {id:"innenrot",   n:"Innenrotation", z:"seil",           w:"X", cat:"Nacken & Schultern", sets:2, lo:12, hi:20, url:V+"innenrotation-mit-seilzug/",   setup:"Seilzug mittlere Position, seitlich zum Gerät, innere Hand, Oberarm bleibt am Körper", zwei:1},
 
-  {id:"crossover",  n:"Crossover Crunch",        w:"X", cat:"Rumpf", sets:2, lo:10, hi:15, url:V+"crossover-crunch-am-seilzug/",   setup:"Seilzug hoch, kniend, diagonal nach unten ziehen", zwei:1},
-  {id:"pike",       n:"Plank to Pike",             w:"X", cat:"Rumpf", sets:2, lo:8,  hi:15, url:V+"plank-to-pike/",                setup:"Höchste Kraftstufe, Griffband am Schienbein, ein Bein in der Schlaufe – Hüfte kontrolliert nach oben", zwei:1},
-  {id:"russian",    n:"Russian Twist",           w:"X", cat:"Rumpf", sets:2, lo:10, hi:16, url:V+"russian-twist-am-seilzug/",      setup:"Seilzug in Brusthöhe, sitzend", setupL:"Seilzug in Brusthöhe, sitzend, Zug von rechts", setupR:"Seilzug in Brusthöhe, sitzend, Zug von links", zwei:1},
-  {id:"seitcrunch", n:"Seitliche Crunches",      w:"X", cat:"Rumpf", sets:2, lo:10, hi:16, url:V+"seitliche-crunches-am-seilzug/", setup:"Seilzug hoch, seitlich kniend", zwei:1},
+  {id:"crossover",  n:"Crossover Crunch", z:"seil",        w:"X", cat:"Rumpf", sets:2, lo:10, hi:15, url:V+"crossover-crunch-am-seilzug/",   setup:"Seilzug unten, auf dem Rücken liegend, ein Fuss in der Schlaufe – Ellbogen zum diagonalen Knie", zwei:1},
+  {id:"pike",       n:"Plank to Pike", z:"band",             w:"X", cat:"Rumpf", sets:2, lo:8,  hi:15, url:V+"plank-to-pike/",                setup:"Höchste Kraftstufe, Griffband am Schienbein, ein Bein in der Schlaufe – Hüfte kontrolliert nach oben", zwei:1},
+  {id:"russian",    n:"Russian Twist", z:"seil",           w:"X", cat:"Rumpf", sets:2, lo:10, hi:16, url:V+"russian-twist-am-seilzug/",      setup:"Seilzug unten, sitzend vor dem Gerät, beide Hände an der Schlaufe", zwei:1},
+  {id:"seitcrunch", n:"Seitliche Crunches", z:"seil",      w:"X", cat:"Rumpf", sets:2, lo:10, hi:16, url:V+"seitliche-crunches-am-seilzug/", setup:"Seilzug unten, auf dem Rücken liegend, Füsse zum Gerät, eine Hand an der Schlaufe", zwei:1},
 
-  {id:"front",      n:"Frontkniebeugen",         w:"X", cat:"Beine & Balance", sets:2, lo:8,  hi:12, url:V+"202-frontkniebeugen/",                setup:"Griffstange vor den Schultern, Ellbogen hoch"},
-  {id:"sumo",       n:"Sumo-Kreuzheben",         w:"X", cat:"Beine & Balance", sets:2, lo:8,  hi:12, url:V+"sumo-kreuzheben-deadlifts-mit-griffstange/", setup:"Breiter Stand, enger Obergriff – schont den unteren Rücken"},
-  {id:"einbeinkb",  n:"Einbeinige Kniebeuge",    w:"X", cat:"Beine & Balance", sets:2, lo:8,  hi:12, url:V+"einbeinige-kniebeuge-mit-entlastung/", setup:"Griffstange zum Entlasten", setupL:"Griffstange zum Entlasten, linkes Bein steht", setupR:"Griffstange zum Entlasten, rechtes Bein steht", zwei:1},
-  {id:"einbeinkh",  n:"Einbeiniges Kreuzheben",  w:"X", cat:"Beine & Balance", sets:2, lo:8,  hi:12, url:V+"einbeiniges-kreuzheben-einarmig/",     setup:"Griff, Horn tief", setupL:"Griff, Horn tief, linkes Bein steht", setupR:"Griff, Horn tief, rechtes Bein steht", zwei:1},
-  {id:"lunge",      n:"Ausfallschritte",         w:"X", cat:"Beine & Balance", sets:2, lo:10, hi:12, url:V+"ausfallschritte/",                    setup:"Griffband, Horn tief", setupL:"Griffband, Horn tief, linkes Bein vorne", setupR:"Griffband, Horn tief, rechtes Bein vorne", zwei:1},
-  {id:"beinbeuger", n:"Beinbeuger liegend",      w:"X", cat:"Beine & Balance", sets:2, lo:10, hi:15, url:V+"beinbeuger-liegend/",                  setup:"Griffband am Fußgelenk, Horn tief", zwei:1},
+  {id:"front",      n:"Frontkniebeugen", z:"stange",         w:"X", cat:"Beine & Balance", sets:2, lo:6,  hi:15, url:V+"202-frontkniebeugen/",                setup:"Griffstange vor den Schultern, Ellbogen hoch"},
+  {id:"sumo",       n:"Sumo-Kreuzheben", z:"stange",         w:"X", cat:"Beine & Balance", sets:2, lo:6,  hi:15, url:V+"sumo-kreuzheben-deadlifts-mit-griffstange/", setup:"Breiter Stand, enger Obergriff – schont den unteren Rücken"},
+  {id:"einbeinkb",  n:"Einbeinige Kniebeuge", z:"stange",    w:"X", cat:"Beine & Balance", sets:2, lo:6,  hi:15, url:V+"einbeinige-kniebeuge-mit-entlastung/", setup:"Griffstange zum Entlasten", setupL:"Griffstange zum Entlasten, linkes Bein steht", setupR:"Griffstange zum Entlasten, rechtes Bein steht", zwei:1},
+  {id:"einbeinkh",  n:"Einbeiniges Kreuzheben", z:"griff",  w:"X", cat:"Beine & Balance", sets:2, lo:6,  hi:15, url:V+"einbeiniges-kreuzheben-einarmig/",     setup:"Griff, Horn tief", setupL:"Griff, Horn tief, linkes Bein steht", setupR:"Griff, Horn tief, rechtes Bein steht", zwei:1},
+  {id:"lunge",      n:"Ausfallschritte", z:"band",         w:"X", cat:"Beine & Balance", sets:2, lo:10, hi:12, url:V+"ausfallschritte/",                    setup:"Griffband, Horn tief", setupL:"Griffband, Horn tief, linkes Bein vorne", setupR:"Griffband, Horn tief, rechtes Bein vorne", zwei:1},
+  {id:"beinbeuger", n:"Beinbeuger liegend", z:"band",      w:"X", cat:"Beine & Balance", sets:2, lo:10, hi:15, url:V+"beinbeuger-liegend/",                  setup:"Griffband am Fußgelenk, Horn tief", zwei:1},
 
-  {id:"mountain",   n:"Mountain Climbers",       w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:20, hi:45, url:V+"mountain-climbers/", setup:"Griffband, Stützposition, Beine wechseln sich ab", sek:1},
-  {id:"plankjacks", n:"Plank Jacks",             w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:20, hi:45, url:V+"plank-jacks/",       setup:"Griffband, Stützposition", sek:1},
-  {id:"explosiv",   n:"Explosives Brustdrücken", w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:10, hi:16, url:V+"213-explosives-brustdruecken-am-horn-alternierend/", setup:"Griff am Horn, Arme wechseln sich ab, zügig drücken"}
+  {id:"mountain",   n:"Mountain Climbers", z:"band",       w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:20, hi:45, url:V+"mountain-climbers/", setup:"Griffband, Stützposition, Beine wechseln sich ab", sek:1},
+  {id:"plankjacks", n:"Plank Jacks", z:"band",             w:"X", cat:"Kurz & schweißtreibend", sets:2, lo:20, hi:45, url:V+"plank-jacks/",       setup:"Griffband, Stützposition", sek:1}
 ];
 
 // Einseitige Übungen zu je zwei Karten aufklappen. Die linke behält die
@@ -273,7 +276,7 @@ EX = (function(liste){
 })(EX);
 
 var PLANS = ["A","B","C"];
-var VERSION = "2026-08-31";
+var VERSION = "2026-10-14";
 var MAXW = 12;                 // das Horn hat 12 Widerstandsstufen
 var FKEY = "eisenhorn.faktor.v1";
 var faktor = 1.8;              // wie viel stärker die starke Stange ist, unter Mehr einstellbar
@@ -295,8 +298,20 @@ function steigern(w, bar, plus){
   }
   return { w:MAXW, bar:2, ende:true };
 }
-var KATS = ["Nacken & Schultern","Rumpf","Beine & Balance","Kurz & schweißtreibend"];
+var KATS = ["Wichtig","Nacken & Schultern","Rumpf","Beine & Balance","Arme","Kurz & schweißtreibend"];
 function sichtbar(e){ return hidden.indexOf(e.id) < 0; }
+
+// Umbau zwischen zwei Übungen: Zubehör, Stange, Hornhöhe – in der Reihenfolge ihres Aufwands.
+// Die Richtung des Widerstands wird bewusst nicht angezeigt, weil sie nicht aus den Daten ableitbar ist.
+var ZNAME = { stange:"Griffstange", seil:"Seilzug", band:"Griffband", griff:"Griff" };
+function umbauText(a, b){
+  var sa = suggest(a.id), sb = suggest(b.id), teile = [];
+  if(a.z && b.z && a.z !== b.z) teile.push("Zubehör: "+ZNAME[a.z]+" → "+ZNAME[b.z]);
+  if(!a.sek && !b.sek && sa.w != null && sb.w != null && (sa.bar||1) !== (sb.bar||1))
+    teile.push("Stange: "+((sa.bar||1)===2?"stark":"leicht")+" → "+((sb.bar||1)===2?"stark":"leicht"));
+  if(sa.h != null && sb.h != null && sa.h !== sb.h) teile.push("Horn: "+sa.h+" → "+sb.h+" cm");
+  return teile;
+}
 
 // Reihenfolge im freien Training: noch nie gemacht zuerst, danach die,
 // die dir gefallen, dann der Rest, ganz unten die aussortierten.
@@ -478,7 +493,7 @@ function suggest(id){
   // Nach einer Stufenerhöhung deutlich tiefer bei den Wiederholungen einsteigen.
   // Die Stufen am Horn sind unten nicht linear – eine Stufe mehr kann sich wie
   // deutlich mehr Last anfühlen, und dann tragen nur weniger Wiederholungen.
-  var einstieg = Math.max(4, Math.round(e.lo * 0.75));
+  var einstieg = e.lo;   // der breite Bereich hat den Puffer schon eingebaut
 
   function hoch(grund){
     var z = steigern(last.w, bar, 1);
@@ -496,9 +511,12 @@ function suggest(id){
   if(weg >= 42)
     return {w:Math.max(1,last.w-1),h:last.h,bar:bar,reps:einstieg,sets:rampSets(e),tone:"halten",
       why:weg+" Tage her. Nach so langer Pause eine Stufe zurück und nur "+einstieg+" Wiederholungen. In zwei bis drei Einheiten bist du wieder da."};
-  if(weg >= 10)
-    return {w:last.w,h:last.h,bar:bar,reps:einstieg,sets:rampSets(e),tone:"halten",
-      why:weg+" Tage her. Gleiche Stufe, aber nur "+einstieg+" Wiederholungen – so kommst du ohne Muskelkater zurück, statt gleich zurückgestuft zu werden."};
+  if(weg >= 10){
+    // Relativ zum letzten Stand: rund ein Viertel weniger Wiederholungen, nie unter die Untergrenze
+    var zurueck = Math.max(e.lo, Math.round(Math.min.apply(null,last.reps) * 0.75));
+    return {w:last.w,h:last.h,bar:bar,reps:zurueck,sets:rampSets(e),tone:"halten",
+      why:weg+" Tage her. Gleiche Stufe, nur "+zurueck+" Wiederholungen – so kommst du ohne Muskelkater zurück."};
+  }
 
   var min = Math.min.apply(null,last.reps);
 
@@ -535,13 +553,15 @@ function suggest(id){
     if(mean(streak[j]) <= mean(streak[j-1])) stalls++; else break;
   }
 
-  if(stalls >= 2)
-    return {w:Math.max(1,last.w-1),h:last.h,bar:bar,reps:e.lo,sets:rampSets(e),tone:"runter",
-      why:"Dreimal keine Steigerung. Eine Stufe zurück und sauber neu aufbauen – das ist kein Rückschritt, sondern Anlauf."};
-
-  if(stalls === 1)
+  // Plateaus werden nie automatisch abgestuft. Zurück geht es nur über
+  // den Marker "war zu schwer" – die Entscheidung liegt bei dir.
+  if(stalls >= 3)
     return {w:last.w,h:last.h,bar:bar,reps:Math.min(min+1,e.hi),sets:rampSets(e),tone:"halten",
-      why:"Letztes Mal keine Steigerung. Widerstand halten, Technik und Tempo prüfen, Schlaf im Blick behalten."};
+      why:"Seit "+(stalls+1)+" Einheiten auf demselben Stand. Kein Grund zur Sorge – prüf Schlaf, Essen und Tempo. Fühlt es sich zu schwer an, setz den Marker „war zu schwer“."};
+
+  if(stalls >= 1)
+    return {w:last.w,h:last.h,bar:bar,reps:Math.min(min+1,e.hi),sets:rampSets(e),tone:"normal",
+      why:"Plateau – völlig normal. Gleiche Stufe, Ziel bleibt eine Wiederholung mehr."};
 
   return {w:last.w,h:last.h,bar:bar,reps:Math.min(min+1,e.hi),sets:rampSets(e),tone:"normal",
     why:"Gleicher Widerstand, eine Wiederholung mehr als beim schwächsten Satz."};
@@ -577,10 +597,16 @@ function istPause(tag){                       // Date -> in einer Pause?
 function pausentageInWoche(von){
   var n = 0;
   for(var i=0;i<7;i++){
-    var t = new Date(von.getTime() + i*86400000);
-    if(t.getTime() <= Date.now() && istPause(t)) n++;
+    // Mittag statt Mitternacht prüfen, damit Zeitzonen- und Sommerzeitgrenzen keinen Tag verschlucken
+    var t = new Date(von.getTime() + i*86400000 + 12*3600000);
+    if(istPause(t)) n++;
   }
   return n;
+}
+// Wochenziel anteilig: Pausentage senken das Ziel, statt die Serie zu gefährden.
+// 0 Pausentage -> 3, 3 Pausentage -> 2, 4-6 -> 1, ganze Woche -> 0 (Woche neutral)
+function wochenZiel(von){
+  return Math.round(3 * (7 - pausentageInWoche(von)) / 7);
 }
 function pauseTage(p){
   return Math.floor((Date.now() - new Date(p.von).getTime())/86400000);
@@ -608,14 +634,18 @@ function wocheZaehler(){
 }
 function wochenSerie(){
   var n = 0, a = weekStart(new Date());
-  if(trainingstage(a, new Date(a.getTime()+7*86400000)) >= 3) n++;
+  var zA = wochenZiel(a);
+  if(zA > 0 && trainingstage(a, new Date(a.getTime()+7*86400000)) >= zA) n++;
+  var erste = Date.now();
+  logs.forEach(function(l){ var t = new Date(l.date).getTime(); if(t < erste) erste = t; });
   var cur = new Date(a);
   for(var i=0;i<520;i++){
     cur.setDate(cur.getDate()-7);
     var ende = new Date(cur.getTime()+7*86400000);
-    if(ende.getTime() < new Date(logs.length?logs[0].date:Date.now()).getTime()) break;
-    if(trainingstage(cur, ende) >= 3){ n++; continue; }
-    if(pausentageInWoche(cur) >= 4) continue;   // Pausenwoche zählt nicht, bricht aber auch nicht
+    if(ende.getTime() < erste) break;
+    var z = wochenZiel(cur);
+    if(z === 0) continue;                                  // reine Pausenwoche: neutral
+    if(trainingstage(cur, ende) >= z){ n++; continue; }    // Ziel erreicht, auch wenn es durch Urlaub kleiner war
     break;
   }
   return n;
@@ -638,14 +668,35 @@ function waermer(s){
 }
 
 /* ---------- Körpergewicht ---------- */
-function avgLast(n, skip){
-  var s = weights.slice(); // chronologisch
+// Mittel der letzten n Messungen eines Feldes ("kg" oder "bauch"), skip überspringt die neuesten
+function avgFeld(feld, n, skip){
+  var s = weights.filter(function(x){ return typeof x[feld] === "number"; });
   var end = s.length - (skip||0);
-  var part = s.slice(Math.max(0,end-n), end);
-  if(!part.length) return null;
-  var t = 0;
-  for(var i=0;i<part.length;i++) t += part[i].kg;
+  if(end < n) return null;                       // erst bewerten, wenn genug Werte da sind
+  var part = s.slice(end-n, end), t = 0;
+  for(var i=0;i<part.length;i++) t += part[i][feld];
   return t/part.length;
+}
+function avgLast(n, skip){ return avgFeld("kg", n, skip); }
+
+// Bewertung über zwei Vier-Wochen-Fenster. Gewicht allein reicht nicht:
+// Bei Einsteigern kann Fett runtergehen, während Muskeln dazukommen.
+function koerperTrend(){
+  var kN = avgFeld("kg",4,0), kV = avgFeld("kg",4,4);
+  if(kN == null || kV == null) return null;
+  var bN = avgFeld("bauch",4,0), bV = avgFeld("bauch",4,4);
+  var dk = kN - kV, db = (bN != null && bV != null) ? bN - bV : null;
+  if(dk <= -2.5)
+    return {ton:"halten", text:"Minus "+(-dk).toFixed(1)+" kg in vier Wochen – zu schnell, da geht Muskel mit. Iss etwas mehr, vor allem Protein."};
+  if(dk <= -0.4)
+    return {ton:"hoch", text:"Läuft: "+dk.toFixed(1)+" kg im Vier-Wochen-Mittel. Genau das Tempo, bei dem die Kraft bleibt."};
+  if(db != null && db <= -0.5)
+    return {ton:"hoch", text:"Gewicht steht, Bauch "+db.toFixed(1)+" cm – du baust Fett ab und Muskeln auf. Nichts ändern."};
+  if(dk >= 0.4)
+    return {ton:"runter", text:"Gewicht steigt (+"+dk.toFixed(1)+" kg im Vier-Wochen-Mittel). Das Training passt – das Defizit fehlt. Zieh rund 300 kcal pro Tag ab: Getränke, Snacks, Portion am Abend."};
+  if(db == null)
+    return {ton:"halten", text:"Gewicht steht. Ob du trotzdem Fett verlierst, zeigt nur der Bauchumfang – trag ihn ab jetzt mit ein."};
+  return {ton:"runter", text:"Gewicht und Bauch stehen. Das Training passt – das Defizit fehlt. Zieh rund 200–300 kcal pro Tag ab und halte das Protein hoch."};
 }
 
 function lastDate(prefix){
@@ -687,7 +738,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g,function(c){
 /* ---------- Zustand ---------- */
 var tab = "heute", plan = "A", showExtra = false, openId = null, saved = {};
 var draft = {};
-var wOpen = false, wDraft = 88;
+var wOpen = false, wDraft = 88, wBauch = 100;
 
 function due(){
   var best = PLANS[0], oldest = Infinity;
@@ -804,8 +855,15 @@ function viewFrei(){
     'Nimm dir ein bis zwei Übungen heraus – Einstellung, Vorschlag und Verlauf laufen genauso mit wie im Hauptplan. '+
     'Diese Einheiten zählen bewusst nicht auf deine drei Wochentrainings, damit die Zahl ehrlich bleibt.</span>'+
     '<span>Oben stehen Übungen, die du noch nie gemacht hast, danach deine Favoriten. Bewerte unten auf jeder Karte.</span></div>';
-  var lst = freiSortiert();
-  if(!lst.length) return h + '<p class="note">Alle freien Übungen sind ausgeblendet. Unter Mehr kannst du sie zurückholen.</p>';
+  var alle = freiSortiert();
+  if(!alle.length) return h + '<p class="note">Alle freien Übungen sind ausgeblendet. Unter Mehr kannst du sie zurückholen.</p>';
+  var wichtig = alle.filter(function(e){ return e.cat === "Wichtig"; });
+  if(wichtig.length){
+    h += '<div class="kat wichtig">Wichtig</div>'+
+         '<p class="note" style="margin:-4px 2px 10px">Schliessen Lücken im Wochenplan: Seitliche Schulter, zweite Hüftbeuge, zweiter vertikaler Zug und Rotation. Wenn du zwischendurch nur eine Übung machst, dann eine von hier.</p>';
+    wichtig.forEach(function(e){ h += cardHTML(e); });
+  }
+  var lst = alle.filter(function(e){ return e.cat !== "Wichtig"; });
   var letzterRang = -1;
   lst.forEach(function(e){
     var r = rang(e);
@@ -820,11 +878,13 @@ function viewFrei(){
 
 function viewHeute(){
   var pz = aktivePause();
-  var wz = wocheZaehler(), ws = wochenSerie();
+  var wz = wocheZaehler(), ws = wochenSerie(), wziel = wochenZiel(weekStart(new Date()));
   var punkte = '';
-  for(var k=0;k<3;k++) punkte += '<i class="'+(k<wz?"on":"")+'"></i>';
+  for(var k=0;k<Math.max(wziel,1);k++) punkte += '<i class="'+(k<wz?"on":"")+'"></i>';
   var h = '<div class="week"><span class="pips">'+punkte+'</span>'+
-    '<span>'+(pz ? 'pausiert' : Math.min(wz,3)+' von 3 diese Woche'+(wz>3?' (+'+(wz-3)+')':''))+'</span>'+
+    '<span>'+(pz ? 'pausiert' :
+      Math.min(wz,wziel)+' von '+wziel+' diese Woche'+(wz>wziel?' (+'+(wz-wziel)+')':'')+
+      (wziel<3 ? ' · Ziel wegen Pause gesenkt' : ''))+'</span>'+
     (ws>0?'<span class="streak">'+ws+' '+(ws===1?'Woche':'Wochen')+' in Folge</span>':'')+
     '</div>';
 
@@ -883,50 +943,57 @@ function viewHeute(){
   var lwTage = lw ? Math.floor((Date.now()-lw.getTime())/86400000) : -1;
   if(!pz && (lwTage < 0 || lwTage >= 7))
     h += '<button class="dash" style="margin-bottom:13px" data-tab="verlauf">'+
-         (lwTage < 0 ? 'Körpergewicht noch nie eingetragen' : 'Gewicht zuletzt vor '+lwTage+' Tagen – diese Woche fehlt')+
+         (lwTage < 0 ? 'Gewicht und Bauch noch nie eingetragen' : 'Gewicht zuletzt vor '+lwTage+' Tagen – diese Woche fehlt')+
          '</button>';
 
-  core.forEach(function(e){ h += cardHTML(e); });
-  h += '<button class="dash" data-extra="1">'+(showExtra?"Zusatz ausblenden":"Zusatz, wenn Zeit ist")+'</button>';
-  if(showExtra){
-    h += '<div style="height:11px"></div>';
-    EX.filter(function(e){ return e.w===plan+"+" && sichtbar(e); }).forEach(function(e){ h += cardHTML(e); });
-  }
+  core.forEach(function(e, i){
+    if(i > 0){
+      var t = umbauText(core[i-1], e);
+      if(e.side === "rechts" && core[i-1].id + "R" === e.id) t = ["Seite wechseln"];
+      h += '<div class="umbau'+(t.length && t[0].indexOf("Zubehör")===0 ? ' gross' : '')+'">'+
+           (t.length ? t.join(" · ") : "kein Umbau")+'</div>';
+    }
+    h += cardHTML(e);
+  });
+  h += '<button class="dash" data-tab="frei">Noch Zeit? Weiter unter „Frei“</button>';
   return h;
 }
 
 function weightCard(){
-  var cur = avgLast(4,0), prev = avgLast(4,4), last = weights.length?weights[weights.length-1]:null;
-  var h = '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center">'+
-    '<div class="name">Körpergewicht</div>';
-  if(cur!=null && prev!=null){
-    var d = cur - prev;
-    h += '<div style="font-family:var(--mono);font-size:12px;color:'+(d<0?"var(--ok)":d>0?"var(--brass)":"var(--steel)")+'">'+
-         (d>0?"+":"")+d.toFixed(1)+' kg</div>';
-  }
-  h += '</div>';
+  var kN = avgFeld("kg",4,0), bN = avgFeld("bauch",4,0);
+  var last = weights.length ? weights[weights.length-1] : null;
+  var hatBauch = weights.some(function(x){ return typeof x.bauch === "number"; });
+  var tr = koerperTrend();
 
-  if(cur!=null){
+  var h = '<div class="card"><div class="name">Körper</div>';
+
+  if(last){
     h += '<div class="readout" style="margin-top:12px">'+
-      '<div class="ro"><div class="lbl">Mittel 4 Wochen</div><div class="val">'+cur.toFixed(1)+'<span class="u">kg</span></div></div>'+
+      '<div class="ro"><div class="lbl">Gewicht Ø 4 Wo.</div><div class="val">'+
+        (kN!=null ? kN.toFixed(1) : last.kg.toFixed(1))+'<span class="u">kg</span></div></div>'+
       '<div class="sep"></div>'+
-      '<div class="ro"><div class="lbl">Letzter Wert</div><div class="val" style="color:var(--steel)">'+last.kg.toFixed(1)+'<span class="u">kg</span></div></div>'+
+      '<div class="ro"><div class="lbl">Bauch Ø 4 Wo.</div><div class="val" style="color:'+(bN!=null?'var(--bone)':'var(--steel)')+'">'+
+        (bN!=null ? bN.toFixed(1) : (hatBauch ? '…' : '—'))+'<span class="u">cm</span></div></div>'+
       '</div>';
     var vals = weights.slice(-16).map(function(x){ return x.kg; });
-    if(vals.length>1) h += '<div style="margin-top:11px">'+spark(vals)+'</div>';
-    h += '<p class="note">Nur das Mittel zählt. Ein einzelner Tag sagt dir nichts, das ist Wasser und Darminhalt.</p>';
-  }else{
-    h += '<p class="note">Einmal pro Woche, immer am selben Wochentag, morgens nach dem Aufstehen. Nach vier Werten zeigt dir die App den Trend statt der Tagesschwankung.</p>';
+    if(vals.length > 1) h += '<div style="margin-top:11px">'+spark(vals)+'</div>';
+    if(tr) h += '<div class="why why-'+tr.ton+'">'+esc(tr.text)+'</div>';
+    else   h += '<p class="note">Ab acht Messungen bewertet die App deinen Trend.</p>';
+    if(!hatBauch && tr) h += '<p class="note">Bauchumfang fehlt noch. Ohne ihn lässt sich Fettabbau bei gleichem Gewicht nicht erkennen.</p>';
   }
+
+  h += '<p class="note">Einmal pro Woche, immer morgens nach dem Aufstehen, nüchtern. Bauch auf Nabelhöhe, entspannt ausgeatmet. '+
+       'Abends gemessen wiegst du bis zu 1,5 kg mehr – das verfälscht den Trend.</p>';
 
   if(wOpen){
     h += '<div class="form"><div class="row">'+
-      '<div class="stp"><div class="lbl">Gewicht</div>'+stepper("kg",0,wDraft.toFixed(1),"kg")+'</div></div>'+
+      '<div class="stp"><div class="lbl">Gewicht</div>'+stepper("kg",0,wDraft.toFixed(1),"kg")+'</div>'+
+      '<div class="stp"><div class="lbl">Bauch</div>'+stepper("cm",0,wBauch.toFixed(1),"cm")+'</div></div>'+
       '<div class="row" style="margin-top:12px">'+
       '<button class="btn ghost" style="flex:1;margin:0" data-wcancel="1">Abbrechen</button>'+
       '<button class="btn brass" style="flex:2;margin:0" data-wsave="1">Speichern</button></div></div>';
   }else{
-    h += '<button class="btn" data-wopen="1">Gewicht eintragen</button>';
+    h += '<button class="btn" data-wopen="1">Messung eintragen</button>';
   }
   return h+'</div>';
 }
@@ -984,7 +1051,7 @@ function viewMehr(){
     '<li><b>Die Einstiegsregel:</b> ein Satz der ersten Übung – Latzug bei A, Rudern bei B, Rudern vorgebeugt bei C. Das ist die ganze Verpflichtung. Neunzig Sekunden, das Horn steht schon eingestellt. Alles danach ist freiwillig.</li>'+
     '<li>Woche 1 und 2: ein Satz pro Übung. Es geht nur darum, die Einstellungen zu finden.</li>'+
     '<li>Woche 3 und 4: zwei Sätze. Jetzt steigen die Zahlen.</li>'+
-    '<li>Ab Woche 5: drei Sätze, Zusatzübungen nach Lust. Die App stellt das von allein um.</li>'+
+    '<li>Ab Woche 5: drei Sätze. Die App stellt das von allein um.</li>'+
     '<li>Häng die Einheit an etwas Bestehendes: direkt nachdem deine Tochter im Bett ist, oder unmittelbar vor dem Podcast-Gehen. Ein fester Auslöser ersetzt jede Erinnerung.</li>'+
     '<li>Miss in den ersten vier Wochen nur eins: drei Einträge pro Woche. Nicht Gewicht, nicht Widerstand.</li>'+
   '</ul></div>'+
@@ -1005,7 +1072,7 @@ function viewMehr(){
     '<li><b>Voll</b> – drei Übungen, je drei Sätze. Rund 25 Minuten.</li>'+
     '<li><b>Kurz</b> – drei Übungen, je ein Satz, dafür bis nah ans Limit. Acht bis zehn Minuten. Hält dein Niveau, auch über Wochen.</li>'+
     '<li><b>Notfall</b> – eine Übung, zwei Sätze. Vier Minuten. Besser als nichts, und der Kopf bleibt im Spiel.</li>'+
-    '<li>Reihenfolge beim Kürzen: erst die Zusatzübungen streichen, dann Sätze reduzieren, zuletzt Übungen weglassen.</li>'+
+    '<li>Reihenfolge beim Kürzen: erst Sätze reduzieren, dann die leichte vierte Übung weglassen, zuletzt eine Grundübung.</li>'+
     '<li>Im Eingabefeld kannst du Sätze entfernen oder ergänzen. Die App wertet eine Kurzeinheit nicht als Rückschritt.</li>'+
     '<li>Lieber dreimal kurz als einmal perfekt und zweimal gar nicht.</li>'+
   '</ul></div>'+
@@ -1083,11 +1150,13 @@ document.addEventListener("click", function(evt){
 
   if(ds.wopen){
     wDraft = weights.length ? weights[weights.length-1].kg : 88;
+    var lb = weights.filter(function(x){ return typeof x.bauch === "number"; });
+    wBauch = lb.length ? lb[lb.length-1].bauch : 100;
     wOpen = true; return render();
   }
   if(ds.wcancel){ wOpen = false; return render(); }
   if(ds.wsave){
-    weights.push({ date:new Date().toISOString(), kg: Math.round(wDraft*10)/10 });
+    weights.push({ date:new Date().toISOString(), kg: Math.round(wDraft*10)/10, bauch: Math.round(wBauch*2)/2 });
     persist(); wOpen = false; return render();
   }
 
@@ -1166,6 +1235,7 @@ document.addEventListener("click", function(evt){
   if(ds.step){
     var d = parseInt(ds.d,10);
     if(ds.step==="kg") wDraft = Math.max(0, Math.round((wDraft + d*0.1)*10)/10);
+    else if(ds.step==="cm") wBauch = Math.max(40, Math.round((wBauch + d*0.5)*2)/2);
     else if(ds.step==="h") draft.h = Math.max(0, Math.min(300, draft.h + d));
     else if(ds.step==="w") draft.w = Math.max(1, Math.min(MAXW, draft.w + d));
     else {
